@@ -21,10 +21,22 @@ public interface JudgeRule {
     LabelSet getLabels();
 
     /**
+     * 获取判定数据的状态
+     * @return
+     */
+    JudgeDataReviewResult reviewJudgeData(JudgeData judgeData);
+
+    /**
+     * 数据无效时，是否发送通知
+     * @return
+     */
+    boolean dataLackNotify();
+
+    /**
      * 判断某个值 是否异常
      * @return
      */
-    boolean isAbnormal(JudgeData judgeData);
+    JudgeResult isAbnormal(JudgeData judgeData);
 
     /**
      * 是否在告警结果中追加判定时的数据

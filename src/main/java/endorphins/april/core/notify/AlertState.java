@@ -1,4 +1,4 @@
-package endorphins.april.core.alert;
+package endorphins.april.core.notify;
 
 /**
  * <描述>

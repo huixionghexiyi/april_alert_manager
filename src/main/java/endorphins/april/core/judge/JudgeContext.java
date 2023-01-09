@@ -20,11 +20,7 @@ public interface JudgeContext {
      */
     JudgeRule getJudgeRule();
 
-    DataSource getDataSource();
-
-    boolean needSelectData();
-
-    JudgeData getJudgeData();
+    List<JudgeData> getJudgeDataList();
 
     /**
      * 告警抑制列表

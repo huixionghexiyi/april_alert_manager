@@ -1,5 +1,9 @@
 package endorphins.april.core.judge;
 
+import endorphins.april.application.alert.Alert;
+
+import java.util.List;
+
 /**
  * 判定
  *
@@ -20,7 +24,7 @@ public interface JudgeWay<T extends JudgeRule> {
     /**
      * 告警通知
      */
-    void notification(JudgeContext judgeContext, JudgeResult judgeResult);
+    void notification(JudgeContext judgeContext, List<Alert> alerts);
 
     /**
      * 告警抑制

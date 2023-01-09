@@ -31,7 +31,7 @@ public class JudgeResult {
 
     private Long endTime;
 
-    private JudgeStatus status;
+    private JudgeState state;
 
     private List<Double> values;
 
@@ -39,10 +39,4 @@ public class JudgeResult {
 
     public boolean isMute = false;
 
-    public enum JudgeStatus {
-        abnormal,
-        normal,
-        data_invalid, // 数据无效
-        data_lack // 数据不足
-    }
 }

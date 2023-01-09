@@ -8,4 +8,6 @@ package endorphins.april.infrastructure;
  */
 public class ConstantKey {
     public static final String DATA_SIZE = "data_size";
+    public static final String VALID_DATA_SIZE = "valid_data_size";
+    public static final String ESTIMATE_DATA_SIZE = "estimate_data_size";
 }

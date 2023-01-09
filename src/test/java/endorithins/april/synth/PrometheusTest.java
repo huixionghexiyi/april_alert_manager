@@ -5,9 +5,12 @@ import endorphins.april.application.prometheus.PrometheusJudgeContext;
 import endorphins.april.application.prometheus.PrometheusJudgeRule;
 import endorphins.april.application.judge.timeWindow.TimeWindowJudgeWay;
 import endorphins.april.application.synth.Synth;
+import endorphins.april.core.judge.JudgeDataListFactory;
 import endorphins.april.core.label.LabelSet;
 import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.Test;
+
+import java.util.Collections;
 
 /**
  * <描述>
@@ -36,12 +39,13 @@ public class PrometheusTest {
                                                                 .put("description", "{{ value }}")
                                                 )
                                                 .expr("up == 0")
-                                                .timeRange("5m")
+                                                .forInterval("5m")
                                                 .labels(LabelSet.create().put("severity", "disaster"))
                                                 .build()
                                 )
-                                .needSelectData(false)
-                                .judgeData(judgeData)
+                                .judgeDataListFactory(JudgeDataListFactory.builder()
+                                        .defaultJudgeDataList(Collections.emptyList())
+                                        .build())
                                 .judgeWay(new TimeWindowJudgeWay())
                                 .inhibits(null)
                                 .silences(null)

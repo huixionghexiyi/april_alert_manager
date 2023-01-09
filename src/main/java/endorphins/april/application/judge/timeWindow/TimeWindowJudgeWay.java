@@ -1,12 +1,13 @@
 package endorphins.april.application.judge.timeWindow;
 
+import endorphins.april.application.alert.Alert;
 import endorphins.april.core.judge.JudgeData;
 import endorphins.april.core.judge.JudgeResult;
+import endorphins.april.core.judge.JudgeRule;
 import endorphins.april.core.judge.JudgeWay;
 import endorphins.april.core.judge.JudgeContext;
-import endorphins.april.core.judge.JudgeRule;
-import endorphins.april.core.judge.SortWay;
-import endorphins.april.infrastructure.ConstantKey;
+
+import java.util.List;
 
 /**
  * 时间窗口判定
@@ -17,69 +18,16 @@ import endorphins.april.infrastructure.ConstantKey;
  */
 public class TimeWindowJudgeWay implements JudgeWay<TimeWindowJudgeRule> {
 
+    /**
+     * 对一个序列的一批数据进行判定，返回一个 JudgeResult 的判定结果
+     *
+     * @param judgeRule
+     * @param judgeData
+     * @return
+     */
     @Override
     public JudgeResult judge(TimeWindowJudgeRule judgeRule, JudgeData judgeData) {
-
-        long startTime = 0;
-        long endTime = 0;
-        if (judgeData.getSortWay() == SortWay.asc) {
-            startTime = judgeData.getTimes().get(0);
-            endTime = judgeData.getTimes().get(judgeData.getTimes().size() - 1);
-        } else {
-            startTime = judgeData.getTimes().get(judgeData.getTimes().size() - 1);
-            endTime = judgeData.getTimes().get(0);
-        }
-
-        long minSize = judgeRule.expectationValueSizeRange()[0];
-        // 如果数量不足，则不进行判定
-
-        if (minSize == 0) {
-            return JudgeResult.builder()
-                    .labelSets(judgeData.getLabelSet().merge(judgeRule.getLabels()))
-                    .annotations(judgeRule.getAnnotations()
-                            .put(ConstantKey.DATA_SIZE, String.valueOf(minSize))
-                    )
-                    .startTime(startTime)
-                    .endTime(endTime)
-                    .status(JudgeResult.JudgeStatus.data_invalid)
-                    .build();
-        }
-
-        if (minSize < judgeData.getSize()) {
-            return JudgeResult.builder()
-                    .labelSets(judgeData.getLabelSet().merge(judgeRule.getLabels()))
-                    .annotations(judgeRule.getAnnotations()
-                            .put(ConstantKey.DATA_SIZE, String.valueOf(minSize))
-                    )
-                    .startTime(startTime)
-                    .endTime(endTime)
-                    .status(JudgeResult.JudgeStatus.data_lack)
-                    .build();
-        }
-
-        // 数量充足，开始进行判定
-        boolean isAbnormal = judgeRule.isAbnormal(judgeData);
-
-        JudgeResult.JudgeResultBuilder result = JudgeResult.builder()
-                .labelSets(judgeData.getLabelSet().merge(judgeRule.getLabels()))
-                .startTime(startTime)
-                .endTime(endTime)
-                .annotations(judgeRule.getAnnotations())
-                .times(judgeData.getTimes())
-                .values(judgeData.getValues());
-        // 返回判定结果
-        if (isAbnormal) {
-            result.status(JudgeResult.JudgeStatus.abnormal);
-        } else {
-            result.status(JudgeResult.JudgeStatus.normal)
-                    .build();
-        }
-
-        if (judgeRule.appendJudgeData()) {
-            result.values(judgeData.getValues())
-                    .times(judgeData.getTimes());
-        }
-        return result.build();
+        return judgeRule.isAbnormal(judgeData);
     }
 
     @Override
@@ -92,9 +40,14 @@ public class TimeWindowJudgeWay implements JudgeWay<TimeWindowJudgeRule> {
         // TODO: 2022/12/28
     }
 
-
+    /**
+     * 告警通知
+     *
+     * @param judgeContext
+     * @param alerts
+     */
     @Override
-    public void notification(JudgeContext judgeContext, JudgeResult judgeResult) {
-        // TODO: 2022/12/28
+    public void notification(JudgeContext judgeContext, List<Alert> alerts) {
+        JudgeRule judgeRule = judgeContext.getJudgeRule();
     }
 }

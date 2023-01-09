@@ -11,9 +11,8 @@ import endorphins.april.core.judge.JudgeRule;
 public interface TimeWindowJudgeRule extends JudgeRule {
 
     /**
-     * 预期有多少个值
-     * 只有两个值:index=0 表示最少多少个;index=1 表示最多多少个
+     * 是否需要检查 判定数据
      * @return
      */
-    long[] expectationValueSizeRange();
+    boolean needReviewJudgeData();
 }

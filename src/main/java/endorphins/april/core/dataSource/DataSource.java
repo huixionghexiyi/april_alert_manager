@@ -3,6 +3,8 @@ package endorphins.april.core.dataSource;
 import endorphins.april.core.judge.JudgeData;
 import endorphins.april.core.judge.JudgeRule;
 
+import java.util.List;
+
 /**
  * <描述>
  *
@@ -11,5 +13,5 @@ import endorphins.april.core.judge.JudgeRule;
  */
 public interface DataSource {
 
-    JudgeData getJudgeDataByJudgeRule(JudgeRule judgeRule);
+    List<JudgeData> getJudgeDataByJudgeRule(final long startTime, final long endTime, final JudgeRule judgeRule);
 }

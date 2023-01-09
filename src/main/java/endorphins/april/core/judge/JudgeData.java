@@ -23,7 +23,9 @@ public class JudgeData {
 
     private SortWay sortWay = SortWay.asc;
 
-    private Long size;
+    private Long realSize;
+
+    private Long validDataSize;
     /**
      * 当前要判定的维度
      */
@@ -39,10 +41,22 @@ public class JudgeData {
      */
     private List<Long> times;
 
-    public Long getSize() {
-        if (size == null) {
-            this.size = values.stream().filter(Objects::nonNull).count();
+    /**
+     * 获取有效的数据的长度
+     *
+     * @return
+     */
+    public Long getValidDataSize() {
+        if (validDataSize == null) {
+            this.validDataSize = values.stream().filter(Objects::nonNull).count();
         }
-        return size;
+        return validDataSize;
+    }
+
+    public long getRealDataSize() {
+        if (realSize == null) {
+            this.realSize = (long) values.size();
+        }
+        return realSize;
     }
 }
