@@ -2,12 +2,11 @@ package endorphins.april.core.judge;
 
 import endorphins.april.core.dataSource.DataSource;
 import lombok.Builder;
-import lombok.Data;
 
 import java.util.List;
 
 /**
- * <描述>
+ * 生成数据的工厂
  *
  * @author timothy.yang cloudwise
  * @since 2023-01-09 10:14
@@ -15,11 +14,11 @@ import java.util.List;
 @Builder
 public class JudgeDataListFactory {
 
-    private DataSource dataSource;
+    private final DataSource dataSource;
 
-    private long startTime;
+    private final long startTime;
 
-    private long endTime;
+    private final long endTime;
 
     private List<JudgeData> defaultJudgeDataList;
 

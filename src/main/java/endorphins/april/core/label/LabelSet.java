@@ -2,8 +2,15 @@ package endorphins.april.core.label;
 
 import com.google.common.collect.Maps;
 import endorphins.april.infrastructure.exception.ValidateException;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.apache.commons.collections4.MapUtils;
 
+import java.io.Serializable;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * <描述>
@@ -11,11 +18,17 @@ import java.util.Map;
  * @author timothy.yang cloudwise
  * @since 2022-12-16 11:31
  */
-public class LabelSet implements Cloneable {
+@Data
+public class LabelSet implements Serializable, Cloneable {
 
     Map<String, String> entries;
 
+    /**
+     * 唯一确定一个序列
+     */
     private int fingerprint;
+
+    private static int emptyLabelSignature = 1;
 
     private LabelSet() {
         entries = Maps.newHashMap();
@@ -35,7 +48,6 @@ public class LabelSet implements Cloneable {
         return true;
     }
 
-
     public void validate() throws ValidateException {
         // TODO: 2022/12/16
     }
@@ -54,9 +66,17 @@ public class LabelSet implements Cloneable {
     }
 
     public int fingerprint() {
-        if (fingerprint == 0) {
-            // TODO: 2022/12/24 构建 entries 的 hashCode, 并且复制给 fingerprint
+        if (MapUtils.isEmpty(entries)) {
+            this.fingerprint = emptyLabelSignature;
+            return this.fingerprint;
         }
+
+        Set<String> labelNames = entries.keySet();
+        int fp = emptyLabelSignature;
+        for (String labelName : labelNames) {
+            fp ^= labelName.hashCode();
+        }
+        this.fingerprint = fp;
         return fingerprint;
     }
 

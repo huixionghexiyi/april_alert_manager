@@ -1,0 +1,50 @@
+global:
+  resolve_timeout: 5m # 如果alert 没有endsAt的默认恢复超时时间，超过该时间，则自动恢复（对prometheus 没影响，因为 总是包含endsAt）
+  http_config: # 默认的 HTTP客户端配置
+    follow_redirects: true
+  smtp_hello: localhost
+  smtp_require_tls: true
+  pagerduty_url: https://events.pagerduty.com/v2/enqueue
+  opsgenie_api_url: https://api.opsgenie.com/
+  wechat_api_url: https://qyapi.weixin.qq.com/cgi-bin/
+  victorops_api_url: https://alert.victorops.com/integrations/generic/20131114/alert/
+
+route:
+  receiver: web.hook # 接收器
+  group_by: # 按 labelName 分组, 将多个拥有相同label信息的alert（即相关的alerts） 分组为同一个 alert
+    - alertname
+  continue: false # alert 是否应该匹配后续同级节点，false 表示在匹配上第一个节点之后，就 不再继续匹配同级节点
+  group_wait: 30s # 第一次发送alert 时，等待多长时间才发送，作用是对 prometheus 发送过来的 alert进行缓冲，通常设置0秒到几分钟
+  matchers:
+    - name = timothy # 该值为字符串，类似于 PromQL
+  group_interval: 5m # 距离上次发送alert后，再等待多长时间再次发送alert，通常是 5分钟或更长
+  repeat_interval: 1h # 一个已经成功收到 firing alert 的接收者，到再次发送到等待时间。（通常为3小时以上）
+  mute_time_intervals:
+    - offhours
+    - holidays
+  active_time_intervals
+  - offhours
+  - holidays
+  routes:
+    ...
+
+# 抑制规则
+inhibit_rules: # 合理设置抑制规则 可以减少垃圾告警的产生
+  - source_match: # 根据 label 匹配源告警
+      severity: critical
+    target_match: # 目标告警如果匹配上了，则抑制告警
+      severity: warning
+    equal: ['alertname', 'dev', 'instance']
+
+# 接收器
+receivers:
+  - name: web.hook
+    webhook_configs:
+      - send_resolved: true
+        http_config:
+          follow_redirects: true
+        url: http://127.0.0.1:5001/
+        max_alerts: 0
+
+# 模版
+templates: []

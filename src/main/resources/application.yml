@@ -2,4 +2,4 @@ spring:
   application:
     name: april_alert_manager
 server:
-  port: 10386
+  port: 9099

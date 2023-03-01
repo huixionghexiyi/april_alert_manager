@@ -1,4 +1,4 @@
-package endorphins.april.infrastructure;
+package endorphins.april.infrastructure.web;
 
 import lombok.Data;
 
@@ -14,7 +14,7 @@ public class Result<T> {
     private static final int SUCCESS_CODE = 200;
     private static final int CLIENT_ERROR_CODE = 400;
     private static final int SYS_ERROR_CODE = 500;
-    private static final int UNKNOW_ERROR_CODE = 600;
+    private static final int UNKNOWN_ERROR_CODE = 600;
 
     private int code;
 
@@ -29,7 +29,7 @@ public class Result<T> {
     }
 
     public static <T> Result<T> emptyFailResult() {
-        return Result.<T>builderByFail(UNKNOW_ERROR_CODE).build();
+        return Result.<T>builderByFail(UNKNOWN_ERROR_CODE).build();
     }
 
     public static <T> Result<T> emptySuccessResult() {

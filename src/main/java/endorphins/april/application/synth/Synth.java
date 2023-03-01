@@ -54,7 +54,6 @@ public class Synth {
 
 
             // TODO: 2022/12/31 构建告警信息
-
             List<Alert> alerts = Lists.newArrayList();
             /**
              * 告警通知

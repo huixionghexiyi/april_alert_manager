@@ -14,8 +14,10 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 /**
  * <描述>
@@ -26,24 +28,14 @@ import java.util.Map;
 @Slf4j
 public class JsonUtils {
 
-    private static final ObjectMapper objectMapper = new ObjectMapper();
-    private static final ObjectMapper underlineObjectMapper = new ObjectMapper();
+    private static final ObjectMapper objectMapper = new ObjectMapper()
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
+            .setDateFormat(new SimpleDateFormat("yyyy-dd-MM HH:mm:ss"))
+            .findAndRegisterModules()
+            .setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
     public static String emptyJson = "{}";
-
-
-    public static ObjectMapper getUnderlineMapper() {
-        return underlineObjectMapper;
-    }
-
-    static {
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        objectMapper.findAndRegisterModules();
-        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-        underlineObjectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        underlineObjectMapper.setPropertyNamingStrategy(com.fasterxml.jackson.databind.PropertyNamingStrategy.SNAKE_CASE);
-    }
 
     public static ObjectMapper getMapper() {
         return objectMapper;
