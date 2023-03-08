@@ -33,7 +33,7 @@ public class Result<T> {
     }
 
     public static <T> Result<T> emptySuccessResult() {
-        return Result.<T>builderBySuccess().build();
+        return Result.<T>success().build();
     }
 
 
@@ -42,7 +42,7 @@ public class Result<T> {
         return builder;
     }
 
-    public static <T> ResultBuilder<T> builderBySuccess() {
+    public static <T> ResultBuilder<T> success() {
         return builder(SUCCESS_CODE);
     }
 

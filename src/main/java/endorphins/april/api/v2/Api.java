@@ -43,7 +43,7 @@ public class Api {
     public Result<Object> everyThingPost(@RequestBody List<Alert> alerts) {
         log.info(JsonUtils.toJSONString(alerts));
 
-        return Result.builderBySuccess()
+        return Result.success()
                 .data(alertService.alertHandler(alerts))
                 .build();
     }
@@ -52,7 +52,7 @@ public class Api {
     public Result<Object> everyThingGet(@PathVariable("path") String path, @RequestBody Object obj) {
         log.info(JsonUtils.toJSONString(obj));
         log.info("get path:{}", path);
-        return Result.builderBySuccess()
+        return Result.success()
                 .data(obj).build();
     }
 }

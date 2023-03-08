@@ -29,7 +29,7 @@ public class Api {
     public Result<Object> everyThing(@PathVariable("path") String path, @RequestBody Object obj) {
         log.info(JsonUtils.toJSONString(obj));
         log.info("path:{}", path);
-        return Result.builderBySuccess()
+        return Result.success()
                 .data(obj).build();
     }
 }
