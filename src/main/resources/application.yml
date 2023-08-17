@@ -1,5 +1,9 @@
 spring:
   application:
     name: april_alert_manager
+  data:
+    elasticsearch:
+      repositories:
+        enabled: true
 server:
   port: 9099

@@ -1,12 +1,12 @@
 package endorithins.april.synth;
 
-import endorphins.april.core.judge.JudgeData;
-import endorphins.april.application.prometheus.PrometheusJudgeContext;
-import endorphins.april.application.prometheus.PrometheusJudgeRule;
-import endorphins.april.application.judge.timeWindow.TimeWindowJudgeWay;
-import endorphins.april.application.synth.Synth;
-import endorphins.april.core.judge.JudgeDataListFactory;
-import endorphins.april.core.label.LabelSet;
+import endorphins.april.domain.judge.JudgeData;
+import endorphins.april.domain.prometheus.PrometheusJudgeContext;
+import endorphins.april.domain.prometheus.PrometheusJudgeRule;
+import endorphins.april.domain.timeWindow.TimeWindowJudgeWay;
+import endorphins.april.domain.synth.Synth;
+import endorphins.april.domain.judge.JudgeDataListFactory;
+import endorphins.april.domain.label.LabelSet;
 import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.Test;
 
