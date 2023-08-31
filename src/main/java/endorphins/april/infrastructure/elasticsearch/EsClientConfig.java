@@ -1,28 +1,20 @@
 package endorphins.april.infrastructure.elasticsearch;
 
 import java.time.Duration;
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.convert.converter.Converter;
-import org.springframework.data.convert.WritingConverter;
 import org.springframework.data.elasticsearch.client.ClientConfiguration;
 import org.springframework.data.elasticsearch.client.elc.ElasticsearchClients;
 import org.springframework.data.elasticsearch.client.elc.ElasticsearchConfiguration;
-import org.springframework.data.elasticsearch.core.convert.ElasticsearchCustomConversions;
-
-import endorphins.april.domain.workflow.action.Action;
-import endorphins.april.domain.workflow.converter.ActionPropertyValueConverter;
-
-import com.google.common.collect.Lists;
+import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
 
 /**
  * @author timothy
  * @DateTime: 2023/7/19 15:13
  **/
 @Configuration
+@EnableElasticsearchRepositories
 public class EsClientConfig extends ElasticsearchConfiguration {
 
     @Value("${es.host:localhost:9200}")
@@ -44,19 +36,19 @@ public class EsClientConfig extends ElasticsearchConfiguration {
             .build();
     }
 
-//    @Override
-//    @Bean
-//    public ElasticsearchCustomConversions elasticsearchCustomConversions() {
-//        return new ElasticsearchCustomConversions(Lists.newArrayList(new ActionPropertyValueConverter(null)));
-//    }
-//
-//    @WritingConverter
-//    static class ListToAction implements Converter<List<String>, List<Action>> {
-//
-//        @Override
-//        public List<Action> convert(List<String> source) {
-//            List<Action> result = Lists.newArrayList();
-//            return result;
-//        }
-//    }
+    //    @Override
+    //    @Bean
+    //    public ElasticsearchCustomConversions elasticsearchCustomConversions() {
+    //        return new ElasticsearchCustomConversions(Lists.newArrayList(new ActionPropertyValueConverter(null)));
+    //    }
+    //
+    //    @WritingConverter
+    //    static class ListToAction implements Converter<List<String>, List<Action>> {
+    //
+    //        @Override
+    //        public List<Action> convert(List<String> source) {
+    //            List<Action> result = Lists.newArrayList();
+    //            return result;
+    //        }
+    //    }
 }

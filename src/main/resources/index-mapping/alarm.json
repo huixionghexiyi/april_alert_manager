@@ -1,0 +1,72 @@
+{
+  "mappings": {
+    "properties": {
+      "id": {
+        "type": "long"
+      },
+      "eventCount": {
+        "type": "integer"
+      },
+      "kind": {
+        "type": "keyword"
+      },
+      "type": {
+        "type": "keyword"
+      },
+      "check": {
+        "type": "keyword"
+      },
+      "source": {
+        "type": "keyword"
+      },
+      "description": {
+        "type": "keyword"
+      },
+      "service": {
+        "type": "keyword"
+      },
+      "dedupeKey": {
+        "type": "keyword"
+      },
+      "firstEventTime": {
+        "type": "date"
+      },
+      "lastEventTime": {
+        "type": "date"
+      },
+      "lastStatusChangeTime": {
+        "type": "date"
+      },
+      "severity": {
+        "type": "integer"
+      },
+      "inMaintenance": {
+        "type": "boolean"
+      },
+      "status": {
+        "type": "keyword"
+      },
+      "namespace": {
+        "type": "keyword"
+      },
+      "createUserId": {
+        "type": "keyword"
+      },
+      "updateUserId": {
+        "type": "keyword"
+      },
+      "tags": {
+        "type": "object"
+      },
+      "incidents": {
+        "type": "long"
+      },
+      "createTime": {
+        "type": "date"
+      },
+      "updateTime": {
+        "type": "date"
+      }
+    }
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "mappings": {
+    "dynamic": "strict",
+    "properties": {
+      "id": {
+        "type": "keyword"
+      },
+      "trigger": {
+        "type": "flattened"
+      },
+      "priority": {
+        "type": "integer"
+      },
+      "steps": {
+        "type": "flattened"
+      },
+      "type": {
+        "type": "keyword"
+      },
+      "status": {
+        "type": "keyword"
+      },
+      "description": {
+        "type": "keyword"
+      },
+      "createTime": {
+        "type": "date"
+      },
+      "updateTime": {
+        "type": "date"
+      }
+    }
+  }
+}
