@@ -16,10 +16,11 @@ import org.springframework.context.annotation.Scope;
  **/
 @Scope
 public class Test {
+    private static String s = "ss";
     public static void main(String[] args) {
-        SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmm");
-        format.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
-        String format1 = format.format(new Date(System.currentTimeMillis()));
-        System.out.println(format1);
+        String name = s;
+        name = "hhh";
+        System.out.println(name);
+        System.out.println(s);
     }
 }
