@@ -1,8 +1,15 @@
 package endorphins.april.service.workflow;
 
+import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections4.CollectionUtils;
+
+import endorphins.april.entity.Event;
+import endorphins.april.service.event.EventHelper;
 import lombok.Data;
+
+import com.google.common.collect.Lists;
 
 /**
  * @author timothy
@@ -18,8 +25,37 @@ public class WorkflowEvent {
 
     private Map<String, Object> tags;
 
-    public WorkflowEvent(Map<String, Object> insideFieldsMap, Map<String, Object> tags){
+    private Long tenantId;
+
+    private Long userId;
+
+    private long eventTime;
+
+    public WorkflowEvent(Map<String, Object> insideFieldsMap, Map<String, Object> tags) {
         this.insideFieldsMap = insideFieldsMap;
         this.tags = tags;
+    }
+
+    public static WorkflowEvent createByEvent(Event event, Long tenantId, Long userId) {
+        Map<String, Object> insideFieldsMap = EventHelper.getInsiderFieldsMap(event);
+        Map<String, Object> tags = event.getTags();
+        WorkflowEvent workflowEvent = new WorkflowEvent(insideFieldsMap, tags);
+        workflowEvent.setTenantId(tenantId);
+        workflowEvent.setUserId(userId);
+        return workflowEvent;
+    }
+
+    public static List<WorkflowEvent> createByEvent(List<Event> events, Long tenantId, Long userId) {
+        List<WorkflowEvent> result = Lists.newArrayList();
+        for (Event event : events) {
+            Map<String, Object> insideFieldsMap = EventHelper.getInsiderFieldsMap(event);
+            Map<String, Object> tags = event.getTags();
+            WorkflowEvent workflowEvent = new WorkflowEvent(insideFieldsMap, tags);
+            workflowEvent.setTenantId(tenantId);
+            workflowEvent.setUserId(userId);
+            result.add(workflowEvent);
+        }
+
+        return result;
     }
 }

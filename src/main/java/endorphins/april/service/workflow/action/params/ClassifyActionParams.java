@@ -1,4 +1,4 @@
-package endorphins.april.service.workflow.action.context;
+package endorphins.april.service.workflow.action.params;
 
 import java.util.List;
 
@@ -9,7 +9,7 @@ import lombok.Data;
  * @DateTime: 2023/8/29 15:51
  **/
 @Data
-public class ClassifyEventActionActionContext implements ActionContext {
+public class ClassifyActionParams implements ActionParams {
 
     public static final String name = "classify";
 

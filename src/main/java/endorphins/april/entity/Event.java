@@ -49,7 +49,4 @@ public class Event implements Serializable {
 
     private Map<String, Object> tags;
 
-    public Map<String, Object> insideFieldsMap() {
-        return EventHelper.getInsiderFieldsMap(this);
-    }
 }

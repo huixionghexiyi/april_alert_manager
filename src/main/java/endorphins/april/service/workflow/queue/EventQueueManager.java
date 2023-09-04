@@ -6,6 +6,7 @@ import java.util.concurrent.BlockingQueue;
 import org.springframework.context.annotation.Configuration;
 
 import endorphins.april.entity.Event;
+import endorphins.april.service.workflow.WorkflowEvent;
 
 import com.google.common.collect.Maps;
 
@@ -15,13 +16,13 @@ import com.google.common.collect.Maps;
  **/
 @Configuration
 public class EventQueueManager {
-    private final Map<Long, BlockingQueue<Event>> queueMap = Maps.newConcurrentMap();
+    private final Map<Long, BlockingQueue<WorkflowEvent>> queueMap = Maps.newConcurrentMap();
 
-    public BlockingQueue<Event> getQueueByTenantId(Long tenantId) {
+    public BlockingQueue<WorkflowEvent> getQueueByTenantId(Long tenantId) {
         return queueMap.get(tenantId);
     }
 
-    public Map<Long, BlockingQueue<Event>> getQueueMap() {
+    public Map<Long, BlockingQueue<WorkflowEvent>> getQueueMap() {
         return queueMap;
     }
 }

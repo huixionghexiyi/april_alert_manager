@@ -14,6 +14,7 @@ import org.springframework.data.elasticsearch.annotations.ValueConverter;
 import org.springframework.data.elasticsearch.annotations.WriteTypeHint;
 
 import endorphins.april.service.valueconverter.SeverityValueConverter;
+import endorphins.april.service.workflow.WorkflowEvent;
 import lombok.Builder;
 import lombok.Data;
 
@@ -31,7 +32,7 @@ public class Alarm implements Serializable {
     private String id;
 
     @Field(type = FieldType.Integer)
-    private Integer eventCount;
+    private int eventCount;
 
     @Field(type = FieldType.Keyword)
     private String kind;
@@ -98,7 +99,7 @@ public class Alarm implements Serializable {
     private Long tenantId;
 
     @Field(type = FieldType.Object)
-    private Map<String, String> tags;
+    private Map<String, Object> tags;
 
     @Field(type = FieldType.Keyword)
     private List<Long> incidents;
@@ -110,4 +111,30 @@ public class Alarm implements Serializable {
     @Field(type = FieldType.Date)
     @LastModifiedDate
     private Long updateTime;
+
+    public static Alarm createByWorkflowEvent(WorkflowEvent workflowEvent) {
+        long now = System.currentTimeMillis();
+
+        Map<String, Object> insideFieldsMap = workflowEvent.getInsideFieldsMap();
+        return Alarm.builder()
+            .eventCount(1)
+            .check(insideFieldsMap.getOrDefault("check", "").toString())
+            .createTime(now)
+            .createUserId(workflowEvent.getUserId())
+            .kind(insideFieldsMap.get("kind").toString())
+            .source(insideFieldsMap.get("source").toString())
+            .service(insideFieldsMap.get("service").toString())
+            .description(insideFieldsMap.get("description").toString())
+            .namespace(insideFieldsMap.get("namespace").toString())
+            .tags(workflowEvent.getTags())
+            .firstEventTime(now)
+            .lastEventTime(now)
+            .type(insideFieldsMap.get("type").toString())
+            .tenantId(workflowEvent.getTenantId())
+            .inMaintenance(false)
+            .status(AlarmStatus.Open)
+            .severity(insideFieldsMap.get("severity").toString())
+            .dedupeKey(insideFieldsMap.get("dedupKey").toString())
+            .build();
+    }
 }

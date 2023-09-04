@@ -3,7 +3,8 @@ package endorphins.april.service.workflow.action;
 import org.springframework.data.annotation.Transient;
 
 import endorphins.april.service.workflow.WorkflowEvent;
-import endorphins.april.service.workflow.action.context.ActionContext;
+import endorphins.april.service.workflow.action.params.ActionParams;
+import endorphins.april.service.workflow.consumer.WorkflowExecutorContext;
 import lombok.Data;
 
 /**
@@ -15,7 +16,7 @@ public class Action {
 
     private String name;
 
-    private String context;
+    private String params;
 
     @Transient
     private ActionExecutor executor;
@@ -23,15 +24,15 @@ public class Action {
     public Action() {
     }
 
-    public Action(String name, String context) {
+    public Action(String name, String params) {
         this.name = name;
-        this.context = context;
+        this.params = params;
     }
     public void initExecutor() {
-        executor = ActionContext.getExecutorByName(name, context);
+        executor = ActionParams.getExecutorByName(name, params);
     }
 
-    public void action(WorkflowEvent event) {
-        executor.action(event);
+    public void action(WorkflowExecutorContext context, WorkflowEvent event) {
+        executor.execute(context, event);
     }
 }

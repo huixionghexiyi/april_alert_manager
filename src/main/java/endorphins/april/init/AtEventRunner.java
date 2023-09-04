@@ -24,8 +24,8 @@ import endorphins.april.service.workflow.Term;
 import endorphins.april.service.workflow.WorkflowStatus;
 import endorphins.april.service.workflow.WorkflowType;
 import endorphins.april.service.workflow.action.Action;
-import endorphins.april.service.workflow.action.context.ClassifyEventActionActionContext;
-import endorphins.april.service.workflow.action.context.DeduplicationEventActionActionContext;
+import endorphins.april.service.workflow.action.params.ClassifyActionParams;
+import endorphins.april.service.workflow.action.params.DeduplicationActionParams;
 import endorphins.april.service.workflow.queue.EventQueueManager;
 import endorphins.april.service.workflow.trigger.Trigger;
 import endorphins.april.service.workflow.trigger.TriggerType;
@@ -75,7 +75,7 @@ public class AtEventRunner implements ApplicationRunner {
     }
 
     private void initApiKeyData() {
-        // TODO 增加用户管理时，再移除此处，apiKey有用户来拥有，而不是默认初始化的，一个用户至少有一个 apiKey
+        // TODO 一个用户至少一个 apiKey
         String defaultEventKey = "defaultEventKey";
         List<ApiKey> byName = apiKeyRepository.findByName(defaultEventKey);
         if (CollectionUtils.isNotEmpty(byName)) {
@@ -90,48 +90,66 @@ public class AtEventRunner implements ApplicationRunner {
     }
 
     private void initWorkflowData() {
-        Optional<Workflow> workflow = workflowRepository.findById("1");
+        String aDefault = "DEFAULT";
+
+        Optional<Workflow> workflow = workflowRepository.findByTags(aDefault);
         if (workflow.isPresent()) {
             return;
         }
 
         long now = System.currentTimeMillis();
+        // 创建 分类 workflow
         Trigger trigger = getDefaultEventTrigger();
-        List<Action> steps = getDefaultEventStepList();
-        Workflow entity = Workflow.builder()
-            .id("1")
+        Workflow classify = Workflow.builder()
             .type(WorkflowType.EVENT)
             .createTime(now)
             .updateTime(now)
             .status(WorkflowStatus.RUNNING)
             .priority(0)
             .trigger(trigger)
+            .tags(aDefault)
             .tenantId(atEventConfig.getDefaultTenantId())
-            .steps(steps)
-
-            .description("default event workflow")
+            .steps(getDefaultClassifySteps())
+            .description("default classify event workflow")
             .build();
 
-        workflowRepository.save(entity);
+        // 创建 去重 workflow，放到最后执行，包含了落库
+        Workflow deduplication = Workflow.builder()
+            .type(WorkflowType.EVENT)
+            .createTime(now)
+            .updateTime(now)
+            .status(WorkflowStatus.RUNNING)
+            .priority(99)
+            .trigger(getDefaultEventTrigger())
+            .tags(aDefault)
+            .tenantId(atEventConfig.getDefaultTenantId())
+            .steps(getDefaultDeduplicationSteps())
+            .description("default deduplication event workflow")
+            .build();
+
+        workflowRepository.saveAll(Lists.newArrayList(classify, deduplication));
     }
 
-    public List<Action> getDefaultEventStepList() {
+    public List<Action> getDefaultClassifySteps() {
         List<Action> steps = Lists.newArrayList();
         // 分类 action
-        ClassifyEventActionActionContext classifyActionContext = new ClassifyEventActionActionContext();
+        ClassifyActionParams classifyActionContext = new ClassifyActionParams();
         classifyActionContext.setClassifyFields(atEventConfig.getDefaultClassifyFields());
         Action a = new Action(classifyActionContext.getName(), JsonUtils.toJSONString(classifyActionContext));
         steps.add(a);
 
+        return steps;
+    }
+
+    private List<Action> getDefaultDeduplicationSteps() {
         // 去重 action
-        DeduplicationEventActionActionContext dedupActionContext = new DeduplicationEventActionActionContext();
-        dedupActionContext.setDedupFields(atEventConfig.getDefaultDeduplicationFields());
+        DeduplicationActionParams dedupActionContext = new DeduplicationActionParams();
+        dedupActionContext.getDedupeFields().addAll(atEventConfig.getDefaultDeduplicationFields());
+        // TODO 不是所有字段 都走 last，service 走  concat
         dedupActionContext.setDefaultAggs(atEventConfig.getDefaultAggs());
         Action action =
-            new Action(DeduplicationEventActionActionContext.name, JsonUtils.toJSONString(dedupActionContext));
-        steps.add(action);
-
-        return steps;
+            new Action(DeduplicationActionParams.name, JsonUtils.toJSONString(dedupActionContext));
+        return Lists.newArrayList(action);
     }
 
     public Trigger getDefaultEventTrigger() {

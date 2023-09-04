@@ -23,7 +23,7 @@ public class EventConsumer implements Runnable {
 
     private ThreadPoolManager threadPoolManager;
 
-    private BlockingQueue<Event> eventQueue;
+    private BlockingQueue<WorkflowEvent> eventQueue;
 
     private List<Workflow> workflowList;
 
@@ -32,14 +32,11 @@ public class EventConsumer implements Runnable {
     public void run() {
         while (true) {
             try {
-                Event event = eventQueue.take();
-                Map<String, Object> insideFieldsMap = event.insideFieldsMap();
-                Map<String, Object> tags = event.getTags();
-                WorkflowEvent workflowEvent = new WorkflowEvent(insideFieldsMap, tags);
+                WorkflowEvent workflowEvent = eventQueue.take();
                 threadPoolManager.getRawEventThreadPool().execute(
                     new WorkflowExecutor(workflowEvent, workflowList, workflowExecutorContext)
                 );
-                log.info("event处理完成，event:{}", JsonUtils.toJSONString(event));
+                log.info("event处理完成，event:{}", JsonUtils.toJSONString(workflowEvent));
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }

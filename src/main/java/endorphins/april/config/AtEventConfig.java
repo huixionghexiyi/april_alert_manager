@@ -1,6 +1,7 @@
 package endorphins.april.config;
 
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -22,9 +23,10 @@ public class AtEventConfig {
 
     /**
      * 默认去重字段
+     * 需要去重字段有一定的顺序
      */
     @Value("${at.event.default.deduplication.fields:source,class,check,service}")
-    private List<String> defaultDeduplicationFields;
+    private Set<String> defaultDeduplicationFields;
 
     /**
      * 默认聚合方式

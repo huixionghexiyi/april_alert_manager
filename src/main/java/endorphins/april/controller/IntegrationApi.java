@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import endorphins.april.service.Integration.IntegrationService;
 import endorphins.april.entity.Event;
+import endorphins.april.service.Integration.IntegrationService;
 import lombok.extern.slf4j.Slf4j;
 
 /**

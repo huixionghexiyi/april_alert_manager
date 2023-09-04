@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.data.elasticsearch.annotations.Dynamic;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 import org.springframework.data.elasticsearch.annotations.ValueConverter;
@@ -26,7 +27,7 @@ import lombok.Data;
  **/
 @Data
 @Builder
-@Document(indexName = "workflow", writeTypeHint = WriteTypeHint.FALSE)
+@Document(indexName = "workflow", writeTypeHint = WriteTypeHint.FALSE, dynamic = Dynamic.STRICT)
 public class Workflow implements Serializable {
 
     @Id
@@ -50,6 +51,12 @@ public class Workflow implements Serializable {
     @Field(type = FieldType.Flattened)
     @ValueConverter(ActionPropertyValueConverter.class)
     private List<Action> steps;
+
+    /**
+     * 默认为 自定义 workflow
+     */
+    @Field(type = FieldType.Keyword, nullValue = "CUSTOM")
+    private String tags;
 
     /**
      * 工作流类型
