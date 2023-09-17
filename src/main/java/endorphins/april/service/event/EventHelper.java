@@ -3,7 +3,7 @@ package endorphins.april.service.event;
 import java.util.Map;
 import java.util.Set;
 
-import endorphins.april.entity.Event;
+import endorphins.april.model.Event;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;

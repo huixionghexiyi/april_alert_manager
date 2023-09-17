@@ -5,7 +5,6 @@ import java.util.concurrent.BlockingQueue;
 
 import org.springframework.context.annotation.Configuration;
 
-import endorphins.april.entity.Event;
 import endorphins.april.service.workflow.WorkflowEvent;
 
 import com.google.common.collect.Maps;

@@ -1,10 +1,8 @@
 package endorphins.april.service.workflow.consumer;
 
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 
-import endorphins.april.entity.Event;
 import endorphins.april.entity.Workflow;
 import endorphins.april.infrastructure.json.JsonUtils;
 import endorphins.april.infrastructure.thread.ThreadPoolManager;

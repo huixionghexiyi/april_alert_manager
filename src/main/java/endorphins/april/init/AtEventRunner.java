@@ -15,12 +15,12 @@ import org.springframework.core.annotation.Order;
 
 import endorphins.april.config.AtEventConfig;
 import endorphins.april.entity.ApiKey;
-import endorphins.april.entity.Event;
 import endorphins.april.entity.Workflow;
 import endorphins.april.infrastructure.json.JsonUtils;
 import endorphins.april.repository.ApiKeyRepository;
 import endorphins.april.repository.WorkflowRepository;
 import endorphins.april.service.workflow.Term;
+import endorphins.april.service.workflow.WorkflowEvent;
 import endorphins.april.service.workflow.WorkflowStatus;
 import endorphins.april.service.workflow.WorkflowType;
 import endorphins.april.service.workflow.action.Action;
@@ -63,7 +63,7 @@ public class AtEventRunner implements ApplicationRunner {
         for (ApiKey apiKey : allApiKey) {
             tenantSet.add(apiKey.getTenantId());
         }
-        Map<Long, BlockingQueue<Event>> queueMap = eventQueueManager.getQueueMap();
+        Map<Long, BlockingQueue<WorkflowEvent>> queueMap = eventQueueManager.getQueueMap();
         for (Long tenantId : tenantSet) {
             queueMap.put(tenantId, new ArrayBlockingQueue<>(atEventConfig.getDefaultEventQueue()));
         }

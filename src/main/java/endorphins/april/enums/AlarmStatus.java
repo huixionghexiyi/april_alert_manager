@@ -1,4 +1,4 @@
-package endorphins.april.entity;
+package endorphins.april.enums;
 
 /**
  * @author timothy

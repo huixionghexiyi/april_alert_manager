@@ -13,10 +13,13 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 import org.springframework.data.elasticsearch.annotations.ValueConverter;
 import org.springframework.data.elasticsearch.annotations.WriteTypeHint;
 
+import endorphins.april.enums.AlarmStatus;
 import endorphins.april.service.valueconverter.SeverityValueConverter;
 import endorphins.april.service.workflow.WorkflowEvent;
 import lombok.Builder;
 import lombok.Data;
+
+import com.google.common.collect.Lists;
 
 /**
  * 严格模式下 需要将 writeTypeHint 设置为false
@@ -53,14 +56,14 @@ public class Alarm implements Serializable {
     private String service;
 
     @Field(type = FieldType.Keyword)
-
     private String dedupeKey;
+
     @Field(type = FieldType.Keyword)
-
     private Long firstEventTime;
-    @Field(type = FieldType.Date)
 
+    @Field(type = FieldType.Date)
     private Long lastEventTime;
+
     @Field(type = FieldType.Date)
     private Long lastStatusChangeTime;
 
@@ -81,7 +84,7 @@ public class Alarm implements Serializable {
      * 警报状态
      */
     @Field(type = FieldType.Keyword)
-    private AlarmStatus status;
+    private List<AlarmStatus> statuses;
 
     /**
      * 命名空间
@@ -127,12 +130,12 @@ public class Alarm implements Serializable {
             .description(insideFieldsMap.get("description").toString())
             .namespace(insideFieldsMap.get("namespace").toString())
             .tags(workflowEvent.getTags())
-            .firstEventTime(now)
-            .lastEventTime(now)
+            .firstEventTime(workflowEvent.getReceivedTime())
+            .lastEventTime(workflowEvent.getReceivedTime())
             .type(insideFieldsMap.get("type").toString())
             .tenantId(workflowEvent.getTenantId())
             .inMaintenance(false)
-            .status(AlarmStatus.Open)
+            .statuses(Lists.newArrayList(AlarmStatus.Open))
             .severity(insideFieldsMap.get("severity").toString())
             .dedupeKey(insideFieldsMap.get("dedupKey").toString())
             .build();

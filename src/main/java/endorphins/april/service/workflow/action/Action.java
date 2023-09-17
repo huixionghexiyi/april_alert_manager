@@ -32,7 +32,7 @@ public class Action {
         executor = ActionParams.getExecutorByName(name, params);
     }
 
-    public void action(WorkflowExecutorContext context, WorkflowEvent event) {
+    public void executor(WorkflowExecutorContext context, WorkflowEvent event) {
         executor.execute(context, event);
     }
 }

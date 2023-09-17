@@ -34,7 +34,7 @@ public class WorkflowExecutor implements Runnable {
             // 如果满足触发器的条件，则继续完成 workflow
             if (isMatch(workflow.getTrigger())) {
                 for (Action action : workflow.getSteps()) {
-                    action.action(context, workflowEvent);
+                    action.executor(context, workflowEvent);
                 }
             }
         }

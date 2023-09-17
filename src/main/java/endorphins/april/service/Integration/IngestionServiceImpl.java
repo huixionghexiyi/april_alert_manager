@@ -1,5 +1,6 @@
 package endorphins.april.service.Integration;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
@@ -8,8 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import endorphins.april.entity.ApiKey;
-import endorphins.april.entity.Event;
+import endorphins.april.entity.IngestionInstance;
+import endorphins.april.model.Event;
+import endorphins.april.model.PostStatus;
 import endorphins.april.repository.ApiKeyRepository;
+import endorphins.april.repository.IngestionInstanceRepository;
 import endorphins.april.service.workflow.WorkflowEvent;
 import endorphins.april.service.workflow.queue.EventQueueManager;
 
@@ -18,13 +22,16 @@ import endorphins.april.service.workflow.queue.EventQueueManager;
  * @DateTime: 2023/8/22 17:32
  **/
 @Service
-public class IntegrationServiceImpl implements IntegrationService {
+public class IngestionServiceImpl implements IngestionService {
 
     @Autowired
     private EventQueueManager eventQueueManager;
 
     @Autowired
     private ApiKeyRepository apiKeyRepository;
+
+    @Autowired
+    private IngestionInstanceRepository instanceRepository;
 
     @Override
     public boolean events(String apiKey, List<Event> events) {
@@ -43,5 +50,21 @@ public class IntegrationServiceImpl implements IntegrationService {
         } else {
             throw new IllegalArgumentException("apiKey is invalid,please check.");
         }
+    }
+
+    @Override
+    public boolean status(String apiKey, PostStatus status) {
+        IngestionInstance ingestionInstance = new IngestionInstance();
+        ingestionInstance.setId(status.getIngestionInstanceId());
+        ingestionInstance.setStatus(status.getStatus());
+        instanceRepository.save(ingestionInstance);
+        // TODO 停止 ingestion
+        return true;
+    }
+
+    @Override
+    public boolean custom(String apiKey, String ingestionId, ArrayList<Event> events) {
+        // TODO
+        return false;
     }
 }

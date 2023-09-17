@@ -52,7 +52,7 @@ public class DeduplicationActionExecutor implements ActionExecutor {
             // 根据字段聚合规则，设置聚合字段的值
             // 重新保存 alarm
             alarm.setEventCount(alarm.getEventCount() + 1);
-            alarm.setLastEventTime(workflowEvent.getEventTime());
+            alarm.setLastEventTime(workflowEvent.getReceivedTime());
         } else {
             // 根据去重字段没有查到时，认为是新生成的 alarm
             alarm = Alarm.createByWorkflowEvent(workflowEvent);

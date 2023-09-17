@@ -1,4 +1,4 @@
-package endorphins.april.entity;
+package endorphins.april.model;
 
 import java.io.Serializable;
 import java.util.Map;

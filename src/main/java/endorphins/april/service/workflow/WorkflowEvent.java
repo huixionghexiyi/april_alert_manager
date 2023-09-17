@@ -3,9 +3,7 @@ package endorphins.april.service.workflow;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections4.CollectionUtils;
-
-import endorphins.april.entity.Event;
+import endorphins.april.model.Event;
 import endorphins.april.service.event.EventHelper;
 import lombok.Data;
 
@@ -29,7 +27,10 @@ public class WorkflowEvent {
 
     private Long userId;
 
-    private long eventTime;
+    /**
+     * 接收到 event 时的时间，如果 原始 event 中没有 time 字段，则该字段作为 eventTime
+     */
+    private long receivedTime;
 
     public WorkflowEvent(Map<String, Object> insideFieldsMap, Map<String, Object> tags) {
         this.insideFieldsMap = insideFieldsMap;
@@ -47,12 +48,14 @@ public class WorkflowEvent {
 
     public static List<WorkflowEvent> createByEvent(List<Event> events, Long tenantId, Long userId) {
         List<WorkflowEvent> result = Lists.newArrayList();
+        long now = System.currentTimeMillis();
         for (Event event : events) {
             Map<String, Object> insideFieldsMap = EventHelper.getInsiderFieldsMap(event);
             Map<String, Object> tags = event.getTags();
             WorkflowEvent workflowEvent = new WorkflowEvent(insideFieldsMap, tags);
             workflowEvent.setTenantId(tenantId);
             workflowEvent.setUserId(userId);
+            workflowEvent.setReceivedTime(now);
             result.add(workflowEvent);
         }
 
