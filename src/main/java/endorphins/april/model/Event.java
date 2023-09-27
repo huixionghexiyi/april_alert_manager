@@ -1,6 +1,7 @@
 package endorphins.april.model;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 
 import endorphins.april.service.event.EventHelper;
@@ -39,7 +40,7 @@ public class Event implements Serializable {
     /**
      * 服务
      */
-    private String service;
+    private List<String> service;
 
     private Integer severity;
 

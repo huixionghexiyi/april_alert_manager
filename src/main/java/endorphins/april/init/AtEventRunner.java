@@ -30,6 +30,7 @@ import endorphins.april.service.workflow.queue.EventQueueManager;
 import endorphins.april.service.workflow.trigger.Trigger;
 import endorphins.april.service.workflow.trigger.TriggerType;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -41,6 +42,7 @@ import com.google.common.collect.Sets;
 @AllArgsConstructor
 @Configuration
 @Order(1)
+@Slf4j
 public class AtEventRunner implements ApplicationRunner {
 
     private AtEventConfig atEventConfig;
@@ -53,10 +55,26 @@ public class AtEventRunner implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
+        /**
+         * 初始化 服务需要的基本数据
+         */
         initData();
+        /**
+         * 初始化 event queue
+         */
         initEventQueue();
+        /**
+         *  初始化 event consumer
+         */
+        initEventConsumer();
     }
 
+    private void initEventConsumer() {
+        // TODO 多个 apiKey 对应一个 event Consumer
+
+    }
+
+    @Deprecated
     private void initEventQueue() {
         Iterable<ApiKey> allApiKey = apiKeyRepository.findAll();
         Set<Long> tenantSet = Sets.newHashSet();
@@ -94,6 +112,7 @@ public class AtEventRunner implements ApplicationRunner {
 
         Optional<Workflow> workflow = workflowRepository.findByTags(aDefault);
         if (workflow.isPresent()) {
+            log.error("not find DEFAULT workflow, please check");
             return;
         }
 

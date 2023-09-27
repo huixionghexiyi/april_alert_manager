@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import endorphins.april.model.Event;
+import endorphins.april.model.ingestion.IngestionInstanceVo;
 import endorphins.april.model.PostStatus;
 import endorphins.april.service.Integration.IngestionService;
 import lombok.extern.slf4j.Slf4j;
@@ -43,9 +44,14 @@ public class IngestionController {
     }
 
     @PostMapping("/instance/status")
-    public boolean status(@RequestHeader String apiKey, @RequestBody PostStatus status) {
-        ingestionService.status(apiKey, status);
+    public boolean status(@RequestBody PostStatus status) {
+        ingestionService.status(status);
         return true;
+    }
+
+    @PostMapping
+    public boolean create(@RequestBody IngestionInstanceVo ingestionInstanceVo) {
+        return ingestionService.create(ingestionInstanceVo);
     }
 
 }

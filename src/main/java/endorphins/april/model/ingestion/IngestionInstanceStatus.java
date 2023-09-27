@@ -1,4 +1,4 @@
-package endorphins.april.enums;
+package endorphins.april.model.ingestion;
 
 /**
  * @author timothy

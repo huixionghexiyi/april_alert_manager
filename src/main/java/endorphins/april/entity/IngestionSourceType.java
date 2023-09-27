@@ -8,10 +8,16 @@ public enum IngestionSourceType {
     /**
      * zabbix
      */
-    Zabbix,
+    ZABBIX,
     /**
      * prometheus
      */
-    Prometheus
+    PROMETHEUS,
+
+    /**
+     * Webhook
+     */
+
+    WEBHOOK
 
 }

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import endorphins.april.model.Event;
+import endorphins.april.model.ingestion.IngestionInstanceVo;
 import endorphins.april.model.PostStatus;
 
 /**
@@ -14,7 +15,14 @@ public interface IngestionService {
 
     boolean events(String apiKey, List<Event> event);
 
-    boolean status(String apiKey, PostStatus status);
+    boolean status(PostStatus status);
 
     boolean custom(String apiKey, String ingestionId, ArrayList<Event> events);
+
+    /**
+     * 创建 ingestion instance
+     * @param ingestionInstanceVo
+     * @return
+     */
+    boolean create(IngestionInstanceVo ingestionInstanceVo);
 }

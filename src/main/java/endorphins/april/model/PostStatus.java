@@ -1,6 +1,6 @@
 package endorphins.april.model;
 
-import endorphins.april.enums.IngestionInstanceStatus;
+import endorphins.april.model.ingestion.IngestionInstanceStatus;
 import lombok.Data;
 
 /**
@@ -13,5 +13,7 @@ public class PostStatus {
     private String ingestionInstanceId;
 
     private IngestionInstanceStatus status;
+
+    private String apiKey;
 
 }

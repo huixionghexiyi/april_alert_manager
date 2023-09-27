@@ -1,5 +1,7 @@
 package endorphins.april.entity;
 
+import java.util.Map;
+
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -7,12 +9,10 @@ import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
-import endorphins.april.entity.IngestionSourceType;
-import endorphins.april.enums.IngestionInstanceStatus;
+import endorphins.april.model.ingestion.IngestionInstanceStatus;
 import lombok.Data;
 
 /**
- *
  * @author timothy
  * @DateTime: 2023/9/4 19:58
  **/
@@ -31,11 +31,23 @@ public class IngestionInstance {
     @Field(type = FieldType.Keyword)
     private String description;
 
+    /**
+     * ingestion source id
+     */
     @Field(type = FieldType.Keyword)
     private String sourceId;
 
+    /**
+     * ingestion source typ 和 ingestion source id 一一对应
+     */
     @Field(type = FieldType.Keyword)
     private IngestionSourceType sourceType;
+
+    @Field(type = FieldType.Keyword)
+    private String apiKey;
+
+    @Field(type = FieldType.Keyword)
+    private Map<String, String> mappings;
 
     @Field(type = FieldType.Long)
     private Long tenantId;

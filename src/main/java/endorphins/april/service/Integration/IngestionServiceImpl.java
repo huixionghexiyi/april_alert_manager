@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import endorphins.april.entity.ApiKey;
 import endorphins.april.entity.IngestionInstance;
 import endorphins.april.model.Event;
+import endorphins.april.model.ingestion.IngestionInstanceVo;
 import endorphins.april.model.PostStatus;
 import endorphins.april.repository.ApiKeyRepository;
 import endorphins.april.repository.IngestionInstanceRepository;
@@ -53,12 +54,12 @@ public class IngestionServiceImpl implements IngestionService {
     }
 
     @Override
-    public boolean status(String apiKey, PostStatus status) {
+    public boolean status(PostStatus status) {
         IngestionInstance ingestionInstance = new IngestionInstance();
         ingestionInstance.setId(status.getIngestionInstanceId());
         ingestionInstance.setStatus(status.getStatus());
         instanceRepository.save(ingestionInstance);
-        // TODO 停止 ingestion
+        // TODO 停止 ingestion instance
         return true;
     }
 
@@ -66,5 +67,19 @@ public class IngestionServiceImpl implements IngestionService {
     public boolean custom(String apiKey, String ingestionId, ArrayList<Event> events) {
         // TODO
         return false;
+    }
+
+    @Override
+    public boolean create(IngestionInstanceVo ingestionInstanceVo) {
+        IngestionInstance instance = new IngestionInstance();
+        instance.setName(ingestionInstanceVo.getName());
+        instance.setDescription(ingestionInstanceVo.getDescription());
+        instance.setApiKey(ingestionInstanceVo.getApiKey());
+        instance.setSourceId(ingestionInstanceVo.getSourceId());
+        instance.setSourceType(ingestionInstanceVo.getSourceType());
+        instanceRepository.save(instance);
+        // TODO create consumer
+
+        return true;
     }
 }
