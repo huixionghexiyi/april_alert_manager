@@ -22,10 +22,9 @@ public class AtEventConfig {
     private List<String> defaultClassifyFields;
 
     /**
-     * 默认去重字段
-     * 需要去重字段有一定的顺序
+     * 默认去重字段 需要去重字段有一定的顺序
      */
-    @Value("${at.event.default.deduplication.fields:source,class,check,service}")
+    @Value("${at.event.default.deduplication.fields:source,kind,check,service}")
     private Set<String> defaultDeduplicationFields;
 
     /**
@@ -38,4 +37,6 @@ public class AtEventConfig {
     private Integer defaultEventQueue;
 
     private long defaultTenantId = 1L;
+
+    private long defaultUserId = 1L;
 }

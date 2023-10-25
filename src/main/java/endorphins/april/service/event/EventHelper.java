@@ -5,6 +5,7 @@ import java.util.Set;
 
 import endorphins.april.model.Event;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
@@ -23,15 +24,4 @@ public class EventHelper {
         "service"
     );
 
-    public static Map<String, Object> getInsiderFieldsMap(Event event) {
-        Map<String, Object> ret = Maps.newHashMap();
-        ret.put("source", event.getSource());
-        ret.put("check", event.getCheck());
-        ret.put("kind", event.getKind());
-        ret.put("type", event.getType());
-        ret.put("description", event.getDescription());
-        ret.put("severity", event.getSeverity());
-        ret.put("service", event.getService());
-        return  ret;
-    }
 }

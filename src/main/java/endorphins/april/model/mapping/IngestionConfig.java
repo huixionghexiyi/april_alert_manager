@@ -12,7 +12,8 @@ import lombok.Data;
 public class IngestionConfig {
 
     /**
-     * 如果一个消息中包含多个事件，设置该字段
+     * 如果一个消息中包含多个event，设置该字段
+     * 指定一批 alerts 存储在哪个key
      */
     private String batchKey;
 

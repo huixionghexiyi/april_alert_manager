@@ -72,7 +72,7 @@ public class Alarm implements Serializable {
      */
     @Field(type = FieldType.Integer)
     @ValueConverter(SeverityValueConverter.class)
-    private String severity;
+    private List<Integer> severity;
 
     /**
      * 是否在维护
@@ -115,29 +115,39 @@ public class Alarm implements Serializable {
     @LastModifiedDate
     private Long updateTime;
 
-    public static Alarm createByWorkflowEvent(WorkflowEvent workflowEvent) {
-        long now = System.currentTimeMillis();
+    public List<Integer> addSeverity(Integer severity) {
+        List<Integer> severityList = this.getSeverity();
+        if(severityList == null) {
+            severityList = Lists.newArrayList();
+        }
+        severityList.add(severity);
+        setSeverity(severityList);
+        return severityList;
+    }
 
-        Map<String, Object> insideFieldsMap = workflowEvent.getInsideFieldsMap();
-        return Alarm.builder()
+    public static Alarm createByWorkflowEvent(WorkflowEvent workflowEvent, String dedupeKey) {
+        long now = System.currentTimeMillis();
+        Alarm alarm = Alarm.builder()
             .eventCount(1)
-            .check(insideFieldsMap.getOrDefault("check", "").toString())
+            .check(workflowEvent.getCheck())
             .createTime(now)
             .createUserId(workflowEvent.getUserId())
-            .kind(insideFieldsMap.get("kind").toString())
-            .source(insideFieldsMap.get("source").toString())
-            .service(insideFieldsMap.get("service").toString())
-            .description(insideFieldsMap.get("description").toString())
-            .namespace(insideFieldsMap.get("namespace").toString())
+            .source(workflowEvent.getSource())
+            .service(workflowEvent.getService())
+            .description(workflowEvent.getDescription())
+            .kind(workflowEvent.getKind())
+            // TODO alarm 的 namespace 根据计算得到
+            .namespace("")
             .tags(workflowEvent.getTags())
             .firstEventTime(workflowEvent.getReceivedTime())
             .lastEventTime(workflowEvent.getReceivedTime())
-            .type(insideFieldsMap.get("type").toString())
+            .type(workflowEvent.getType())
             .tenantId(workflowEvent.getTenantId())
             .inMaintenance(false)
             .statuses(Lists.newArrayList(AlarmStatus.Open))
-            .severity(insideFieldsMap.get("severity").toString())
-            .dedupeKey(insideFieldsMap.get("dedupKey").toString())
+            .dedupeKey(dedupeKey)
             .build();
+        alarm.addSeverity(workflowEvent.getSeverity());
+        return alarm;
     }
 }

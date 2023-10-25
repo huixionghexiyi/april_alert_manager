@@ -1,6 +1,7 @@
-package endorphins.april.entity;
+package endorphins.april.model.ingestion;
 
 /**
+ * 摄取器 类型
  * @author timothy
  * @DateTime: 2023/9/5 19:20
  **/

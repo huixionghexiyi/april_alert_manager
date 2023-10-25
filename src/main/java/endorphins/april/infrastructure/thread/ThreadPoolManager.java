@@ -21,7 +21,7 @@ public class ThreadPoolManager {
 
     private Object eventConsumerLock = new Object();
 
-    public ThreadPoolExecutor getRawEventThreadPool() {
+    public ThreadPoolExecutor getRawEventConsumerThreadPool() {
         if (rawEventThreadPool == null) {
             synchronized (rawEventLock) {
                 if (rawEventThreadPool == null) {

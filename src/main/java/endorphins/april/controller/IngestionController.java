@@ -2,6 +2,7 @@ package endorphins.april.controller;
 
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,8 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import endorphins.april.model.Event;
-import endorphins.april.model.ingestion.IngestionInstanceVo;
 import endorphins.april.model.PostStatus;
+import endorphins.april.model.ingestion.IngestionInstanceVo;
 import endorphins.april.service.Integration.IngestionService;
 import lombok.extern.slf4j.Slf4j;
 
@@ -37,8 +38,15 @@ public class IngestionController {
         return ingestionService.custom(apiKey, ingestionId, Lists.newArrayList(event));
     }
 
-    @PostMapping("/events")
-    public boolean events(@RequestHeader String apiKey, @RequestBody List<Event> events) {
+    @PostMapping({"/events/{apiKey}", "/events"})
+    public boolean events(@RequestHeader(value = "apiKey", required = false) String headerApiKey,
+        @PathVariable(value = "apiKey", required = false) String pathApiKey, @RequestBody List<Event> events) {
+        String apiKey;
+        if (StringUtils.isNotBlank(headerApiKey)) {
+            apiKey = headerApiKey;
+        } else {
+            apiKey = pathApiKey;
+        }
         ingestionService.events(apiKey, events);
         return true;
     }

@@ -1,11 +1,10 @@
 package endorphins.april.service.workflow.queue;
 
 import java.util.Map;
-import java.util.concurrent.BlockingQueue;
 
 import org.springframework.context.annotation.Configuration;
 
-import endorphins.april.service.workflow.WorkflowEvent;
+import endorphins.april.entity.ApiKey;
 
 import com.google.common.collect.Maps;
 
@@ -15,13 +14,36 @@ import com.google.common.collect.Maps;
  **/
 @Configuration
 public class EventQueueManager {
-    private final Map<Long, BlockingQueue<WorkflowEvent>> queueMap = Maps.newConcurrentMap();
+    /**
+     * key: userId, value: eventQueue
+     */
+    private final Map<Long, BlockingEventQueue> queueMap = Maps.newHashMap();
 
-    public BlockingQueue<WorkflowEvent> getQueueByTenantId(Long tenantId) {
-        return queueMap.get(tenantId);
+    /**
+     * key:apiKey, value:userId
+     */
+    private final Map<String, Long> apiKeyUserMap = Maps.newHashMap();
+
+    public BlockingEventQueue getQueueByApiKey(String apiKey) {
+        Long userId = apiKeyUserMap.get(apiKey);
+        if (userId == null) {
+            return null;
+        }
+        return queueMap.get(userId);
     }
 
-    public Map<Long, BlockingQueue<WorkflowEvent>> getQueueMap() {
-        return queueMap;
+    public BlockingEventQueue getQueueByUserId(Long userId) {
+        return queueMap.get(userId);
+    }
+
+    public void addEventQueue(String apiKey, Long userId, Long tenantId, int queueSize) {
+        apiKeyUserMap.put(apiKey, userId);
+        if (queueMap.containsKey(userId)) {
+            return;
+        }
+        BlockingEventQueue eventQueue = new BlockingEventQueue(queueSize);
+        eventQueue.setUserId(userId);
+        eventQueue.setTenantId(tenantId);
+        queueMap.put(userId, eventQueue);
     }
 }

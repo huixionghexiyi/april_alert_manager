@@ -1,11 +1,7 @@
 package endorphins.april.init;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.boot.ApplicationArguments;
@@ -20,7 +16,6 @@ import endorphins.april.infrastructure.json.JsonUtils;
 import endorphins.april.repository.ApiKeyRepository;
 import endorphins.april.repository.WorkflowRepository;
 import endorphins.april.service.workflow.Term;
-import endorphins.april.service.workflow.WorkflowEvent;
 import endorphins.april.service.workflow.WorkflowStatus;
 import endorphins.april.service.workflow.WorkflowType;
 import endorphins.april.service.workflow.action.Action;
@@ -33,7 +28,6 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 /**
  * @author timothy
@@ -77,13 +71,11 @@ public class AtEventRunner implements ApplicationRunner {
     @Deprecated
     private void initEventQueue() {
         Iterable<ApiKey> allApiKey = apiKeyRepository.findAll();
-        Set<Long> tenantSet = Sets.newHashSet();
         for (ApiKey apiKey : allApiKey) {
-            tenantSet.add(apiKey.getTenantId());
-        }
-        Map<Long, BlockingQueue<WorkflowEvent>> queueMap = eventQueueManager.getQueueMap();
-        for (Long tenantId : tenantSet) {
-            queueMap.put(tenantId, new ArrayBlockingQueue<>(atEventConfig.getDefaultEventQueue()));
+            Long tenantId = apiKey.getTenantId();
+            Long userId = apiKey.getCreateUserId();
+            String apiKeyId = apiKey.getId();
+            eventQueueManager.addEventQueue(apiKeyId, userId, tenantId, atEventConfig.getDefaultEventQueue());
         }
     }
 
@@ -102,7 +94,7 @@ public class AtEventRunner implements ApplicationRunner {
         ApiKey entity = new ApiKey();
         entity.setDescription("default api key");
         entity.setName(defaultEventKey);
-        entity.setCreateUserId(1L);
+        entity.setCreateUserId(atEventConfig.getDefaultUserId());
         entity.setTenantId(atEventConfig.getDefaultTenantId());
         apiKeyRepository.save(entity);
     }
@@ -128,6 +120,7 @@ public class AtEventRunner implements ApplicationRunner {
             .trigger(trigger)
             .tags(aDefault)
             .tenantId(atEventConfig.getDefaultTenantId())
+            .createUserId(atEventConfig.getDefaultUserId())
             .steps(getDefaultClassifySteps())
             .description("default classify event workflow")
             .build();
@@ -141,7 +134,7 @@ public class AtEventRunner implements ApplicationRunner {
             .priority(99)
             .trigger(getDefaultEventTrigger())
             .tags(aDefault)
-            .tenantId(atEventConfig.getDefaultTenantId())
+            .tenantId(atEventConfig.getDefaultTenantId()).createUserId(atEventConfig.getDefaultUserId())
             .steps(getDefaultDeduplicationSteps())
             .description("default deduplication event workflow")
             .build();
@@ -164,7 +157,7 @@ public class AtEventRunner implements ApplicationRunner {
         // 去重 action
         DeduplicationActionParams dedupActionContext = new DeduplicationActionParams();
         dedupActionContext.getDedupeFields().addAll(atEventConfig.getDefaultDeduplicationFields());
-        // TODO 不是所有字段 都走 last，service 走  concat
+        // TODO 不是所有字段 都使用 last函数，service 使用 concat 连接
         dedupActionContext.setDefaultAggs(atEventConfig.getDefaultAggs());
         Action action =
             new Action(DeduplicationActionParams.name, JsonUtils.toJSONString(dedupActionContext));

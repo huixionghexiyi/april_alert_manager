@@ -10,6 +10,10 @@ import lombok.Data;
  **/
 @Data
 public class MappingRule {
+
+    /**
+     * 映射类型
+     */
     private MappingRuleType type;
 
     /**

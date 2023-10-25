@@ -8,6 +8,7 @@ import endorphins.april.infrastructure.json.JsonUtils;
 import endorphins.april.infrastructure.thread.ThreadPoolManager;
 import endorphins.april.service.workflow.WorkflowEvent;
 import endorphins.april.service.workflow.WorkflowExecutor;
+import endorphins.april.service.workflow.queue.BlockingEventQueue;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 
@@ -21,7 +22,7 @@ public class EventConsumer implements Runnable {
 
     private ThreadPoolManager threadPoolManager;
 
-    private BlockingQueue<WorkflowEvent> eventQueue;
+    private BlockingEventQueue eventQueue;
 
     private List<Workflow> workflowList;
 
@@ -31,7 +32,7 @@ public class EventConsumer implements Runnable {
         while (true) {
             try {
                 WorkflowEvent workflowEvent = eventQueue.take();
-                threadPoolManager.getRawEventThreadPool().execute(
+                threadPoolManager.getEventConsumerThreadPool().execute(
                     new WorkflowExecutor(workflowEvent, workflowList, workflowExecutorContext)
                 );
                 log.info("event处理完成，event:{}", JsonUtils.toJSONString(workflowEvent));

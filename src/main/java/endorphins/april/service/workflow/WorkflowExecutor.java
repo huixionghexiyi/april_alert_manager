@@ -43,20 +43,17 @@ public class WorkflowExecutor implements Runnable {
     private boolean isMatch(Trigger trigger) {
         List<Term> terms = trigger.getTerms();
         boolean triggerWorkflow = true;
-        Map<String, Object> insideFieldsMap = workflowEvent.getInsideFieldsMap();
         Map<String, Object> tags = workflowEvent.getTags();
         // 如果没有term，则认为该  trigger 满足所有的条件
-        if(CollectionUtils.isEmpty(terms)) {
+        if (CollectionUtils.isEmpty(terms)) {
             return true;
         }
         for (Term term : terms) {
             Object fieldValue;
-            if (insideFieldsMap.containsKey(term.getKey())) {
-                fieldValue = insideFieldsMap.get(term.getKey());
-            } else {
+            if ((fieldValue = workflowEvent.getByFieldName(term.getKey())) == null) {
                 fieldValue = tags.get(term.getKey());
             }
-            // 如果不满足条件, 则跳过
+            // 只要有一个条件不满足, 则跳过
             if (!term.checkValue(fieldValue)) {
                 triggerWorkflow = false;
                 break;

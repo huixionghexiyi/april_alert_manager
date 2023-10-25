@@ -3,10 +3,14 @@ package endorphins.april.model;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 
-import endorphins.april.service.event.EventHelper;
+import org.apache.commons.lang3.StringUtils;
+
 import lombok.Data;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.sun.istack.internal.NotNull;
 
 /**
@@ -17,9 +21,7 @@ import com.sun.istack.internal.NotNull;
 public class Event implements Serializable {
 
     /**
-     * 被检查项
-     * 在 cmdb 中，通常为 配置项
-     * 在 指标中，通常为 指标名
+     * 被检查项 在 cmdb 中，通常为 配置项 在 指标中，通常为 指标名
      */
     @NotNull
     private String check;
@@ -40,7 +42,7 @@ public class Event implements Serializable {
     /**
      * 服务
      */
-    private List<String> service;
+    private String service;
 
     private Integer severity;
 
@@ -49,5 +51,4 @@ public class Event implements Serializable {
     private long time;
 
     private Map<String, Object> tags;
-
 }

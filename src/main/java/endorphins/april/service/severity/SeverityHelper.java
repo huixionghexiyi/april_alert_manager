@@ -27,6 +27,7 @@ public class SeverityHelper {
     }
 
     public static String getSeverityByCode(Integer code) {
+        // TODO 在 alarm 展示时，使用映射
         return severityMap.getOrDefault(code, UNKNOWN_SEVERITY);
     }
 

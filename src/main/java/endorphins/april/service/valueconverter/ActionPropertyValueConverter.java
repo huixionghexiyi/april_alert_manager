@@ -7,6 +7,7 @@ import org.springframework.data.elasticsearch.core.mapping.PropertyValueConverte
 import endorphins.april.service.workflow.action.Action;
 
 /**
+ * workflow 中每一个action的转换
  * @author timothy
  * @DateTime: 2023/8/30 09:45
  **/
@@ -23,7 +24,7 @@ public class ActionPropertyValueConverter implements PropertyValueConverter {
         if (value instanceof Map) {
             Map<String, String> valueMap = (Map<String, String>) value;
             String name = valueMap.get("name");
-            String context = valueMap.get("context");
+            String context = valueMap.get("params");
             action = new Action(name, context);
             action.initExecutor();
         }

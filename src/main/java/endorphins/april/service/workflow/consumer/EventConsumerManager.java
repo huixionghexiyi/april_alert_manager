@@ -42,13 +42,14 @@ public class EventConsumerManager implements ApplicationRunner {
         // 根据 tenant 区分 workflow
         List<Workflow> allWorkflow = workflowRepository.findByTriggerTypeOrderByPriorityAsc(TriggerType.EVENT_CREATED);
         if (CollectionUtils.isNotEmpty(allWorkflow)) {
-            Map<Long, List<Workflow>> workflowByTenant = allWorkflow.stream()
-                .collect(Collectors.groupingBy(Workflow::getTenantId));
-            workflowByTenant.forEach(
-                (tenantId, workflows) -> {
+            // 一个用户一个 workflow
+            Map<Long, List<Workflow>> workflowByUserId = allWorkflow.stream()
+                .collect(Collectors.groupingBy(Workflow::getCreateUserId));
+            workflowByUserId.forEach(
+                (createUserId, workflows) -> {
                     threadPoolManager.getEventConsumerThreadPool()
                         .execute(EventConsumer.builder()
-                            .eventQueue(eventQueueManager.getQueueByTenantId(tenantId))
+                            .eventQueue(eventQueueManager.getQueueByUserId(createUserId))
                             .threadPoolManager(threadPoolManager)
                             .workflowList(workflows)
                             .workflowExecutorContext(

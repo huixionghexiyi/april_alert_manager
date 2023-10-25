@@ -10,5 +10,6 @@ import com.google.common.base.Joiner;
  **/
 public class DeduplicationHelper {
     public static final Joiner JOINER = Joiner.on("::");
+    public static final Joiner LIST_JOINER = Joiner.on(",");
 
 }
