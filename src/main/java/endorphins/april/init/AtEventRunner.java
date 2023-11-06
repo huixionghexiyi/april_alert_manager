@@ -1,33 +1,36 @@
 package endorphins.april.init;
 
-import java.util.List;
-import java.util.Optional;
-
+import com.google.common.collect.Lists;
+import endorphins.april.config.AtEventConfig;
+import endorphins.april.entity.ApiKey;
+import endorphins.april.entity.IngestionInstance;
+import endorphins.april.entity.Workflow;
+import endorphins.april.infrastructure.json.JsonUtils;
+import endorphins.april.infrastructure.thread.ThreadPoolManager;
+import endorphins.april.repository.AlarmRepository;
+import endorphins.april.repository.ApiKeyRepository;
+import endorphins.april.repository.IngestionInstanceRepository;
+import endorphins.april.repository.WorkflowRepository;
+import endorphins.april.service.workflow.*;
+import endorphins.april.service.workflow.event.ClassifyActionParams;
+import endorphins.april.service.workflow.event.DeduplicationActionParams;
+import endorphins.april.service.workflow.event.EventConsumer;
+import endorphins.april.service.workflow.event.EventQueueManager;
+import endorphins.april.service.workflow.rawevent.RawEventConsumer;
+import endorphins.april.service.workflow.rawevent.RawEventQueueManager;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 
-import endorphins.april.config.AtEventConfig;
-import endorphins.april.entity.ApiKey;
-import endorphins.april.entity.Workflow;
-import endorphins.april.infrastructure.json.JsonUtils;
-import endorphins.april.repository.ApiKeyRepository;
-import endorphins.april.repository.WorkflowRepository;
-import endorphins.april.service.workflow.Term;
-import endorphins.april.service.workflow.WorkflowStatus;
-import endorphins.april.service.workflow.WorkflowType;
-import endorphins.april.service.workflow.Action;
-import endorphins.april.service.workflow.event.ClassifyActionParams;
-import endorphins.april.service.workflow.event.DeduplicationActionParams;
-import endorphins.april.service.workflow.event.EventQueueManager;
-import endorphins.april.service.workflow.Trigger;
-import endorphins.april.service.workflow.TriggerType;
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
-import com.google.common.collect.Lists;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * @author timothy
@@ -47,45 +50,82 @@ public class AtEventRunner implements ApplicationRunner {
 
     private EventQueueManager eventQueueManager;
 
+    private AlarmRepository alarmRepository;
+
+    private ThreadPoolManager threadPoolManager;
+
+    private RawEventQueueManager rawEventQueueManager;
+
+    private IngestionInstanceRepository ingestionInstanceRepository;
+
     @Override
     public void run(ApplicationArguments args) throws Exception {
         /**
          * 初始化 服务需要的基本数据
          */
-        initData();
+        initApiKeyData();
+
+        /**
+         *  为每个用户增加一个默认的 workflow
+         *  如果已经存在，则不做操作
+         */
+        initWorkflowData();
+
         /**
          * 初始化 event queue
          */
         initEventQueue();
+
         /**
          *  初始化 event consumer
          */
         initEventConsumer();
+
+        initRawEventQueue();
+
+        initRawEventConsumer();
     }
+
 
     private void initEventConsumer() {
-        // TODO 多个 apiKey 对应一个 event Consumer
-
+        // 根据 tenant 区分 workflow
+        List<Workflow> allWorkflow = workflowRepository.findByTriggerTypeOrderByPriorityAsc(TriggerType.EVENT_CREATED);
+        if (CollectionUtils.isNotEmpty(allWorkflow)) {
+            // 一个用户一个 workflow
+            // TODO 根据 priority 排序
+            Map<Long, List<Workflow>> workflowByUserId = allWorkflow.stream()
+                    .collect(Collectors.groupingBy(Workflow::getCreateUserId, LinkedHashMap::new, Collectors.toList()));
+            workflowByUserId.forEach(
+                    (createUserId, workflows) -> {
+                        WorkflowExecutorContext executorContext = WorkflowExecutorContext.builder()
+                                .workflowList(workflows)
+                                .alarmRepository(alarmRepository)
+                                .build();
+                        EventConsumer eventConsumer = EventConsumer.builder()
+                                .eventQueue(eventQueueManager.getQueueByUserId(createUserId))
+                                .threadPoolManager(threadPoolManager)
+                                .workflowExecutorContext(executorContext)
+                                .build();
+                        threadPoolManager.getEventConsumerThreadPool().execute(eventConsumer);
+                    }
+            );
+        } else {
+            log.error("not find any workflow");
+        }
     }
 
-    @Deprecated
     private void initEventQueue() {
         Iterable<ApiKey> allApiKey = apiKeyRepository.findAll();
         for (ApiKey apiKey : allApiKey) {
             Long tenantId = apiKey.getTenantId();
             Long userId = apiKey.getCreateUserId();
             String apiKeyId = apiKey.getId();
-            eventQueueManager.addEventQueue(apiKeyId, userId, tenantId, atEventConfig.getDefaultEventQueue());
+            eventQueueManager.addEventQueue(apiKeyId, userId, tenantId);
         }
     }
 
-    private void initData() {
-        initApiKeyData();
-        initWorkflowData();
-    }
-
     private void initApiKeyData() {
-        // TODO 一个用户至少一个 apiKey
+        // TODO 默认用户临时增加，后续该代码需要删除
         String defaultEventKey = "defaultEventKey";
         List<ApiKey> byName = apiKeyRepository.findByName(defaultEventKey);
         if (CollectionUtils.isNotEmpty(byName)) {
@@ -100,10 +140,9 @@ public class AtEventRunner implements ApplicationRunner {
     }
 
     private void initWorkflowData() {
-
+        // TODO 需要对所有用户增加 workflow，这里暂时只对默认用户增加
         Optional<Workflow> workflow = workflowRepository.findByTags(Workflow.DEFAULT_TAG);
         if (workflow.isPresent()) {
-            // log.error("not find DEFAULT workflow, please check");
             return;
         }
 
@@ -111,33 +150,34 @@ public class AtEventRunner implements ApplicationRunner {
         // 创建 分类 workflow
         Trigger trigger = getDefaultEventTrigger();
         Workflow classify = Workflow.builder()
-            .type(WorkflowType.EVENT)
-            .createTime(now)
-            .updateTime(now)
-            .status(WorkflowStatus.RUNNING)
-            .priority(0)
-            .trigger(trigger)
-            .tags(Workflow.DEFAULT_TAG)
-            .tenantId(AtEventConfig.defaultTenantId)
-            .createUserId(AtEventConfig.defaultUserId)
-            .steps(getDefaultClassifySteps())
-            .description("default classify event workflow")
-            .build();
+                .type(WorkflowType.EVENT)
+                .createTime(now)
+                .updateTime(now)
+                .status(WorkflowStatus.RUNNING)
+                .priority(0)
+                .trigger(trigger)
+                .tags(Workflow.DEFAULT_TAG)
+                .tenantId(AtEventConfig.defaultTenantId)
+                .createUserId(AtEventConfig.defaultUserId)
+                .steps(getDefaultClassifySteps())
+                .description("default classify event workflow")
+                .build();
 
-        // 创建 去重 workflow，放到最后执行，包含了落库
+        // 创建 去重 workflow，放到最后执行
         Workflow deduplication = Workflow.builder()
-            .type(WorkflowType.EVENT)
-            .createTime(now)
-            .updateTime(now)
-            .status(WorkflowStatus.RUNNING)
-            .priority(99)
-            .trigger(getDefaultEventTrigger())
-            .tags(Workflow.DEFAULT_TAG)
-            .tenantId(AtEventConfig.defaultTenantId).createUserId(AtEventConfig.defaultUserId)
-            .steps(getDefaultDeduplicationSteps())
-            .description("default deduplication event workflow")
-            .build();
+                .type(WorkflowType.EVENT)
+                .createTime(now)
+                .updateTime(now)
+                .status(WorkflowStatus.RUNNING)
+                .priority(99)
+                .trigger(getDefaultEventTrigger())
+                .tags(Workflow.DEFAULT_TAG)
+                .tenantId(AtEventConfig.defaultTenantId).createUserId(AtEventConfig.defaultUserId)
+                .steps(getDefaultDeduplicationSteps())
+                .description("default deduplication event workflow")
+                .build();
 
+        // 落库
         workflowRepository.saveAll(Lists.newArrayList(classify, deduplication));
     }
 
@@ -159,7 +199,7 @@ public class AtEventRunner implements ApplicationRunner {
         // TODO 不是所有字段 都使用 last函数，service 使用 concat 连接
         dedupActionContext.setDefaultAggs(atEventConfig.getDefaultAggs());
         Action action =
-            new Action(DeduplicationActionParams.name, JsonUtils.toJSONString(dedupActionContext));
+                new Action(DeduplicationActionParams.name, JsonUtils.toJSONString(dedupActionContext));
         return Lists.newArrayList(action);
     }
 
@@ -167,7 +207,45 @@ public class AtEventRunner implements ApplicationRunner {
         List<Term> terms = Lists.newArrayList();
 
         return Trigger.builder()
-            .type(TriggerType.EVENT_CREATED)
-            .terms(terms).build();
+                .type(TriggerType.EVENT_CREATED)
+                .terms(terms).build();
     }
+
+    private void initRawEventQueue() {
+        Iterable<IngestionInstance> all = ingestionInstanceRepository.findAll();
+        all.forEach(
+                instance -> {
+                    rawEventQueueManager.addRawEventQueue(instance.getId(), instance.getCreateUserId(), instance.getTenantId());
+                }
+        );
+    }
+
+    private void initRawEventConsumer() {
+        List<Workflow> allWorkflow =
+                workflowRepository.findByTriggerTypeOrderByPriorityAsc(TriggerType.RAW_EVENT_COLLECT);
+        if (CollectionUtils.isNotEmpty(allWorkflow)) {
+            // 一个用户一个 workflow
+            Map<String, List<Workflow>> workflowByIngestionId = allWorkflow.stream()
+                    .collect(Collectors.groupingBy(Workflow::getIngestionId, LinkedHashMap::new, Collectors.toList()));
+            workflowByIngestionId.forEach(
+                    (ingestionId, workflows) -> {
+                        WorkflowExecutorContext executorContext = WorkflowExecutorContext.builder()
+                                .workflowList(workflows)
+                                .alarmRepository(alarmRepository)
+                                .eventQueue(eventQueueManager.getQueueByUserId(workflows.get(0).getCreateUserId()))
+                                .build();
+                        RawEventConsumer consumer = RawEventConsumer.builder()
+                                .rawEventQueue(rawEventQueueManager.getQueueByIngestionId(ingestionId))
+                                .threadPoolManager(threadPoolManager)
+                                .workflowExecutorContext(executorContext)
+                                .build();
+                        threadPoolManager.getRawEventConsumerThreadPool().execute(consumer);
+                    }
+            );
+        } else {
+            log.warn("not find any workflow");
+        }
+    }
+
+
 }

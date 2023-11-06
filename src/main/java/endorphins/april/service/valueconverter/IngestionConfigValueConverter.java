@@ -5,6 +5,8 @@ import org.springframework.data.elasticsearch.core.mapping.PropertyValueConverte
 import endorphins.april.infrastructure.json.JsonUtils;
 import endorphins.april.model.mapping.IngestionConfig;
 
+import java.util.Map;
+
 /**
  * 摄取配置值的 转换器
  * @author timothy
@@ -18,6 +20,9 @@ public class IngestionConfigValueConverter implements PropertyValueConverter {
 
     @Override
     public Object read(Object value) {
+        if(value instanceof Map) {
+            return JsonUtils.getMapper().convertValue(value, IngestionConfig.class);
+        }
         return value;
     }
 }

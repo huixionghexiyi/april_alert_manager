@@ -11,16 +11,9 @@ import endorphins.april.service.workflow.*;
 import endorphins.april.service.workflow.event.EventQueueManager;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.boot.ApplicationArguments;
-import org.springframework.boot.ApplicationRunner;
-import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * @author timothy
@@ -29,8 +22,7 @@ import java.util.stream.Collectors;
 @Component
 @AllArgsConstructor
 @Slf4j
-@Order(2)
-public class RawEventConsumerManager implements ApplicationRunner {
+public class RawEventConsumerManager {
 
     private RawEventQueueManager rawEventQueueManager;
 
@@ -41,35 +33,6 @@ public class RawEventConsumerManager implements ApplicationRunner {
     private WorkflowRepository workflowRepository;
 
     private AlarmRepository alarmRepository;
-
-    @Override
-    public void run(ApplicationArguments args) throws Exception {
-        List<Workflow> allWorkflow =
-                workflowRepository.findByTriggerTypeOrderByPriorityAsc(TriggerType.RAW_EVENT_COLLECT);
-        if (CollectionUtils.isNotEmpty(allWorkflow)) {
-            // 一个用户一个 workflow
-            Map<String, List<Workflow>> workflowByIngestionId = allWorkflow.stream()
-                    .collect(Collectors.groupingBy(Workflow::getIngestionId, LinkedHashMap::new, Collectors.toList()));
-            workflowByIngestionId.forEach(
-                    (ingestionId, workflows) -> {
-                        WorkflowExecutorContext executorContext = WorkflowExecutorContext.builder()
-                                .workflowList(workflows)
-                                .alarmRepository(alarmRepository)
-                                .eventQueue(eventQueueManager.getQueueByUserId(workflows.get(0).getCreateUserId()))
-                                .build();
-                        RawEventConsumer consumer = RawEventConsumer.builder()
-                                .rawEventQueue(rawEventQueueManager.getQueueByIngestionId(ingestionId))
-                                .threadPoolManager(threadPoolManager)
-                                .workflowExecutorContext(executorContext)
-                                .build();
-                        threadPoolManager.getRawEventConsumerThreadPool().execute(consumer);
-                    }
-            );
-        } else {
-            log.warn("not find any workflow");
-        }
-
-    }
 
     public void addConsumer(IngestionInstance instance) {
         List<Workflow> workflows = Lists.newArrayList();
@@ -99,6 +62,9 @@ public class RawEventConsumerManager implements ApplicationRunner {
         workflows.add(workflow);
 
         workflowRepository.save(workflow);
+
+        // 添加 rawEventQueue
+        rawEventQueueManager.addRawEventQueue(instance.getId(), instance.getCreateUserId(), instance.getTenantId());
 
         // 添加到 consumerManager
         threadPoolManager.getRawEventConsumerThreadPool()

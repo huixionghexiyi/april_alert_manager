@@ -34,7 +34,9 @@ public class AtEventConfig {
     private String defaultAggs;
 
     @Value("${at.event.default.event.queue.size:16}")
-    private Integer defaultEventQueue;
+    private Integer defaultEventQueueSize;
+    @Value("${at.event.default.raw.event.queue.size:16}")
+    private Integer defaultRawEventQueueSize;
 
     public static long defaultTenantId = 1L;
 

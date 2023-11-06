@@ -38,30 +38,7 @@ public class EventConsumerManager implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        // 根据 tenant 区分 workflow
-        List<Workflow> allWorkflow = workflowRepository.findByTriggerTypeOrderByPriorityAsc(TriggerType.EVENT_CREATED);
-        if (CollectionUtils.isNotEmpty(allWorkflow)) {
-            // 一个用户一个 workflow
-            // TODO 根据 priority 排序
-            Map<Long, List<Workflow>> workflowByUserId = allWorkflow.stream()
-                    .collect(Collectors.groupingBy(Workflow::getCreateUserId, LinkedHashMap::new, Collectors.toList()));
-            workflowByUserId.forEach(
-                    (createUserId, workflows) -> {
-                        WorkflowExecutorContext executorContext = WorkflowExecutorContext.builder()
-                                .workflowList(workflows)
-                                .alarmRepository(alarmRepository)
-                                .build();
-                        EventConsumer eventConsumer = EventConsumer.builder()
-                                .eventQueue(eventQueueManager.getQueueByUserId(createUserId))
-                                .threadPoolManager(threadPoolManager)
-                                .workflowExecutorContext(executorContext)
-                                .build();
-                        threadPoolManager.getEventConsumerThreadPool().execute(eventConsumer);
-                    }
-            );
-        } else {
-            log.error("not find any workflow");
-        }
+
 
     }
 }
