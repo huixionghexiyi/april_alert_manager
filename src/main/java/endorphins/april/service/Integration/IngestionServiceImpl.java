@@ -2,20 +2,19 @@ package endorphins.april.service.Integration;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import endorphins.april.entity.IngestionInstance;
 import endorphins.april.model.Event;
-import endorphins.april.model.PostStatus;
 import endorphins.april.model.ingestion.IngestionInstanceVo;
+import endorphins.april.model.ingestion.PostStatus;
 import endorphins.april.repository.IngestionInstanceRepository;
-import endorphins.april.service.apikey.ApiKeyService;
-import endorphins.april.service.workflow.WorkflowEvent;
-import endorphins.april.service.workflow.queue.BlockingEventQueue;
-import endorphins.april.service.workflow.queue.EventQueueManager;
+import endorphins.april.service.workflow.event.WorkflowEvent;
+import endorphins.april.service.workflow.rawevent.RawEventConsumerManager;
+import endorphins.april.service.workflow.event.EventQueueManager;
+import endorphins.april.service.workflow.event.EventBlockingQueue;
 
 /**
  * @author timothy
@@ -28,15 +27,15 @@ public class IngestionServiceImpl implements IngestionService {
     private EventQueueManager eventQueueManager;
 
     @Autowired
-    private ApiKeyService apiKeyService;
+    private IngestionInstanceRepository instanceRepository;
 
     @Autowired
-    private IngestionInstanceRepository instanceRepository;
+    private RawEventConsumerManager rawEventConsumerManager;
 
     @Override
     public boolean events(String apiKey, List<Event> events) {
         // TODO 对 events 的合法性进行校验 description,severity,source,check not be null
-        BlockingEventQueue eventBlockingQueue = eventQueueManager.getQueueByApiKey(apiKey);
+        EventBlockingQueue eventBlockingQueue = eventQueueManager.getQueueByApiKey(apiKey);
         if (eventBlockingQueue == null) {
             throw new NullPointerException("this apiKey [" + apiKey + "] dont have a queue");
         }
@@ -64,9 +63,9 @@ public class IngestionServiceImpl implements IngestionService {
 
     @Override
     public boolean create(IngestionInstanceVo ingestionInstanceVo) {
-
+        // TODO 规范性验证
         IngestionInstance instance = instanceRepository.save(IngestionInstance.createByVo(ingestionInstanceVo));
-        // TODO create consumer
+        rawEventConsumerManager.addConsumer(instance);
 
         return true;
     }

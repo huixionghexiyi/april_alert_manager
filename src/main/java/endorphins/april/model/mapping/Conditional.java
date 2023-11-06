@@ -4,12 +4,14 @@ import java.util.List;
 import java.util.Map;
 
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author timothy
  * @DateTime: 2023/9/27 15:38
  **/
 @Data
+@Slf4j
 public class Conditional {
 
     /**
@@ -32,6 +34,34 @@ public class Conditional {
      */
     private Map<MappingConverterType, List<String>> converter;
 
+    public Boolean checkValue(List<Boolean> conditionResult) {
+        if (operator == OperatorType.AND) {
+            Boolean ret = true;
+            for (Boolean r : conditionResult) {
+                ret = ret && r;
+            }
+            return ret;
+        } else if (operator == OperatorType.OR) {
+            Boolean ret = false;
+            for (Boolean r : conditionResult) {
+                ret = ret || r;
+            }
+            return ret;
+        }
+        throw new UnsupportedOperationException("Not Support operator[" + operator + "]");
+    }
+
+    public Object convertValue(Object sourceValue) {
+        List<String> sourceValues = converter.get(MappingConverterType.sourceValues);
+        List<String> targetValues = converter.get(MappingConverterType.targetValues);
+        for (int i = 0; i < sourceValues.size(); i++) {
+            if (sourceValues.get(i).equals(sourceValue.toString())) {
+                return targetValues.get(i);
+            }
+        }
+        return sourceValue;
+    }
+
     /**
      * @author timothy
      * @DateTime: 2023/9/27 19:28
@@ -44,6 +74,29 @@ public class Conditional {
         private OperatorType operator;
 
         private String value;
+
+        public boolean checkValue(Object value) {
+            switch (operator) {
+                case EQUALS:
+                    return value.equals(this.value);
+                case NOT_EQUALS:
+                    return !value.equals(this.value);
+                case CONTAINS:
+                    return value.toString().contains(this.value);
+                case NOT_CONTAINS:
+                    return !value.toString().contains(this.value);
+                case BEGINS_WITH:
+                    return value.toString().startsWith(this.value);
+                case NOT_BEGIN_WITH:
+                    return !value.toString().startsWith(this.value);
+                case ENDS_WITH:
+                    return value.toString().endsWith(this.value);
+                case NOT_END_WITH:
+                    return !value.toString().endsWith(this.value);
+                default:
+                    throw new UnsupportedOperationException("Not Support operator[" + operator + "]");
+            }
+        }
 
     }
 }

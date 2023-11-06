@@ -38,7 +38,7 @@ public class ThreadPoolManager {
         if (eventConsumer == null) {
             synchronized (eventConsumerLock) {
                 if (eventConsumer == null) {
-                    eventConsumer = new ThreadPoolExecutor(4, 4, 0, TimeUnit.NANOSECONDS,
+                    eventConsumer = new ThreadPoolExecutor(4, 16, 0, TimeUnit.NANOSECONDS,
                         new LinkedBlockingDeque<>());
                 }
             }

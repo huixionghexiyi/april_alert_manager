@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="warn" monitorInterval="30" strict="true" schema="Log4J-V2.2.xsd"
+               packages="com.zero.scribe.log4j2plugin">
+    <Properties>
+        <Property name="LOG_HOME" value="${sys:cwLogRootPath:-logs}"/>
+        <property name="LOG_PREFIX">$${env:APP_NAME:-snmpagent}</property>
+        <!--定义日志输出格式 -->
+        <property name="LOG_PATTERN">%-d{yyyy-MM-dd HH:mm:ss.SSS}|%-6p|%pid|%t|%l|%m%n</property>
+        <property name="LEVEL">$${env:LOG_LEVEL:-DEBUG}</property>
+    </Properties>
+
+    <Appenders>
+        <!--控制台输出日志 -->
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${LOG_PATTERN}" charset="UTF-8"/>
+        </Console>
+
+        <!--Debug级别日志输出 -->
+        <RollingRandomAccessFile name="DebugFile"
+                                 fileName="${LOG_HOME}/${LOG_PREFIX}.debug.log"
+                                 filePattern="${LOG_HOME}/${LOG_PREFIX}.%d{yyyyMMdd}.%i.debug.log.gz">
+            <Filters>
+                <!--如果是INFO以上级别拒绝-->
+                <ThresholdFilter level="INFO" onMatch="DENY" onMismatch="NEUTRAL"/>
+                <!--如果是DEBUG级别输出 -->
+                <ThresholdFilter level="DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <!--单个文件大小 -->
+                <SizeBasedTriggeringPolicy size="100MB"/>
+            </Policies>
+            <!--保存日志文件个数 -->
+            <DefaultRolloverStrategy max="30">
+                <Delete basePath="${LOG_HOME}/" maxDepth="2">
+                    <IfFileName glob="*.log*"/>
+                    <IfLastModified age="7d"/>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingRandomAccessFile>
+
+        <!--Info级别日志输出 -->
+        <RollingRandomAccessFile name="InfoFile"
+                                 fileName="${LOG_HOME}/${LOG_PREFIX}.info.log"
+                                 filePattern="${LOG_HOME}/${LOG_PREFIX}.%d{yyyyMMdd}.%i.info.log.gz">
+            <Filters>
+                <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="NEUTRAL"/>
+            </Filters>
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <!--单个文件大小 -->
+                <SizeBasedTriggeringPolicy size="100MB"/>
+            </Policies>
+            <!--保存日志文件个数 -->
+            <DefaultRolloverStrategy max="30">
+                <Delete basePath="${LOG_HOME}/" maxDepth="2">
+                    <IfFileName glob="*.log*"/>
+                    <IfLastModified age="7d"/>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingRandomAccessFile>
+
+        <!--warn级别日志输出-->
+        <RollingRandomAccessFile name="WarnFile"
+                                 fileName="${LOG_HOME}/${LOG_PREFIX}.warn.log"
+                                 filePattern="${LOG_HOME}/${LOG_PREFIX}.%d{yyyyMMdd}.%i.warn.log.gz">
+            <Filters>
+                <!--如果是WARN级别输出-->
+                <ThresholdFilter level="WARN" onMatch="ACCEPT" onMismatch="NEUTRAL"/>
+            </Filters>
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="100MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="30">
+                <Delete basePath="${LOG_HOME}/" maxDepth="2">
+                    <IfFileName glob="*.log*"/>
+                    <IfLastModified age="7d"/>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingRandomAccessFile>
+
+        <!--Error级别日志输出-->
+        <RollingRandomAccessFile name="ErrorFile"
+                                 fileName="${LOG_HOME}/${LOG_PREFIX}.error.log"
+                                 filePattern="${LOG_HOME}/${LOG_PREFIX}.%d{yyyyMMdd}.%i.error.log.gz">
+            <Filters>
+                <!--如果是ERROR级别输出-->
+                <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="100MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="30">
+                <Delete basePath="${LOG_HOME}/" maxDepth="2">
+                    <IfFileName glob="*.log*"/>
+                    <IfLastModified age="7d"/>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingRandomAccessFile>
+    </Appenders>
+
+    <Loggers>
+        <AsyncRoot level="${LEVEL}" includeLocation="true">
+            <AppenderRef ref="Console"/>
+        </AsyncRoot>
+        <AsyncLogger name="com" level="${LEVEL}" includeLocation="true">
+            <AppenderRef ref="DebugFile" level="DEBUG"/>
+            <AppenderRef ref="InfoFile" level="INFO"/>
+            <AppenderRef ref="WarnFile" level="WARN"/>
+            <AppenderRef ref="ErrorFile" level="ERROR"/>
+        </AsyncLogger>
+        <AsyncLogger name="cn" level="WARN" includeLocation="true">
+            <AppenderRef ref="DebugFile" level="DEBUG"/>
+            <AppenderRef ref="InfoFile" level="INFO"/>
+            <AppenderRef ref="WarnFile" level="WARN"/>
+            <AppenderRef ref="ErrorFile" level="ERROR"/>
+        </AsyncLogger>
+        <AsyncLogger name="org" level="DEBUG" includeLocation="true">
+            <AppenderRef ref="DebugFile" level="DEBUG"/>
+            <AppenderRef ref="InfoFile" level="INFO"/>
+            <AppenderRef ref="WarnFile" level="WARN"/>
+            <AppenderRef ref="ErrorFile" level="ERROR"/>
+        </AsyncLogger>
+        <AsyncLogger name="io" level="WARN" includeLocation="true">
+            <AppenderRef ref="DebugFile" level="DEBUG"/>
+            <AppenderRef ref="InfoFile" level="INFO"/>
+            <AppenderRef ref="WarnFile" level="WARN"/>
+            <AppenderRef ref="ErrorFile" level="ERROR"/>
+        </AsyncLogger>
+        <AsyncLogger name="javax" level="WARN" includeLocation="true">
+            <AppenderRef ref="DebugFile" level="DEBUG"/>
+            <AppenderRef ref="InfoFile" level="INFO"/>
+            <AppenderRef ref="WarnFile" level="WARN"/>
+            <AppenderRef ref="ErrorFile" level="ERROR"/>
+        </AsyncLogger>
+        <AsyncLogger name="net" level="WARN" includeLocation="true">
+            <AppenderRef ref="DebugFile" level="DEBUG"/>
+            <AppenderRef ref="InfoFile" level="INFO"/>
+            <AppenderRef ref="WarnFile" level="WARN"/>
+            <AppenderRef ref="ErrorFile" level="ERROR"/>
+        </AsyncLogger>
+    </Loggers>
+
+</Configuration>

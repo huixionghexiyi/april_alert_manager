@@ -13,11 +13,11 @@ import endorphins.april.model.mapping.IngestionConfig;
 public class IngestionConfigValueConverter implements PropertyValueConverter {
     @Override
     public Object write(Object value) {
-        return JsonUtils.toJSONString(value);
+        return value;
     }
 
     @Override
     public Object read(Object value) {
-        return JsonUtils.parse(value.toString(), IngestionConfig.class);
+        return value;
     }
 }

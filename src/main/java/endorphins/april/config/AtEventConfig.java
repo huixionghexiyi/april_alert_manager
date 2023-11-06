@@ -36,7 +36,7 @@ public class AtEventConfig {
     @Value("${at.event.default.event.queue.size:16}")
     private Integer defaultEventQueue;
 
-    private long defaultTenantId = 1L;
+    public static long defaultTenantId = 1L;
 
-    private long defaultUserId = 1L;
+    public static long defaultUserId = 1L;
 }

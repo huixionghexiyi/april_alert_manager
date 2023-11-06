@@ -3,7 +3,7 @@ package endorphins.april.repository;
 import java.util.List;
 
 import endorphins.april.entity.Workflow;
-import endorphins.april.service.workflow.trigger.TriggerType;
+import endorphins.april.service.workflow.TriggerType;
 
 /**
  * @author timothy

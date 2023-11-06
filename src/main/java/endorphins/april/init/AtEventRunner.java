@@ -18,12 +18,12 @@ import endorphins.april.repository.WorkflowRepository;
 import endorphins.april.service.workflow.Term;
 import endorphins.april.service.workflow.WorkflowStatus;
 import endorphins.april.service.workflow.WorkflowType;
-import endorphins.april.service.workflow.action.Action;
-import endorphins.april.service.workflow.action.params.ClassifyActionParams;
-import endorphins.april.service.workflow.action.params.DeduplicationActionParams;
-import endorphins.april.service.workflow.queue.EventQueueManager;
-import endorphins.april.service.workflow.trigger.Trigger;
-import endorphins.april.service.workflow.trigger.TriggerType;
+import endorphins.april.service.workflow.Action;
+import endorphins.april.service.workflow.event.ClassifyActionParams;
+import endorphins.april.service.workflow.event.DeduplicationActionParams;
+import endorphins.april.service.workflow.event.EventQueueManager;
+import endorphins.april.service.workflow.Trigger;
+import endorphins.april.service.workflow.TriggerType;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -94,17 +94,16 @@ public class AtEventRunner implements ApplicationRunner {
         ApiKey entity = new ApiKey();
         entity.setDescription("default api key");
         entity.setName(defaultEventKey);
-        entity.setCreateUserId(atEventConfig.getDefaultUserId());
-        entity.setTenantId(atEventConfig.getDefaultTenantId());
+        entity.setCreateUserId(AtEventConfig.defaultTenantId);
+        entity.setTenantId(AtEventConfig.defaultUserId);
         apiKeyRepository.save(entity);
     }
 
     private void initWorkflowData() {
-        String aDefault = "DEFAULT";
 
-        Optional<Workflow> workflow = workflowRepository.findByTags(aDefault);
+        Optional<Workflow> workflow = workflowRepository.findByTags(Workflow.DEFAULT_TAG);
         if (workflow.isPresent()) {
-            log.error("not find DEFAULT workflow, please check");
+            // log.error("not find DEFAULT workflow, please check");
             return;
         }
 
@@ -118,9 +117,9 @@ public class AtEventRunner implements ApplicationRunner {
             .status(WorkflowStatus.RUNNING)
             .priority(0)
             .trigger(trigger)
-            .tags(aDefault)
-            .tenantId(atEventConfig.getDefaultTenantId())
-            .createUserId(atEventConfig.getDefaultUserId())
+            .tags(Workflow.DEFAULT_TAG)
+            .tenantId(AtEventConfig.defaultTenantId)
+            .createUserId(AtEventConfig.defaultUserId)
             .steps(getDefaultClassifySteps())
             .description("default classify event workflow")
             .build();
@@ -133,8 +132,8 @@ public class AtEventRunner implements ApplicationRunner {
             .status(WorkflowStatus.RUNNING)
             .priority(99)
             .trigger(getDefaultEventTrigger())
-            .tags(aDefault)
-            .tenantId(atEventConfig.getDefaultTenantId()).createUserId(atEventConfig.getDefaultUserId())
+            .tags(Workflow.DEFAULT_TAG)
+            .tenantId(AtEventConfig.defaultTenantId).createUserId(AtEventConfig.defaultUserId)
             .steps(getDefaultDeduplicationSteps())
             .description("default deduplication event workflow")
             .build();

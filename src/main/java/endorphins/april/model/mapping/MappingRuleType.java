@@ -10,6 +10,7 @@ public enum MappingRuleType {
     /**
      * 目标字段是个列表
      */
+    @Deprecated
     LIST,
     /**
      * 条件映射

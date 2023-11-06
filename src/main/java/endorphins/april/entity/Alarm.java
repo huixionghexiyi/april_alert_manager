@@ -13,9 +13,9 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 import org.springframework.data.elasticsearch.annotations.ValueConverter;
 import org.springframework.data.elasticsearch.annotations.WriteTypeHint;
 
-import endorphins.april.enums.AlarmStatus;
+import endorphins.april.model.alarm.AlarmStatus;
 import endorphins.april.service.valueconverter.SeverityValueConverter;
-import endorphins.april.service.workflow.WorkflowEvent;
+import endorphins.april.service.workflow.event.WorkflowEvent;
 import lombok.Builder;
 import lombok.Data;
 

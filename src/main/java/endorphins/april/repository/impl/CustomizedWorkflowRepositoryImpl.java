@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import co.elastic.clients.elasticsearch._types.query_dsl.TermQuery;
 import endorphins.april.entity.Workflow;
 import endorphins.april.repository.CustomizedWorkflowRepository;
-import endorphins.april.service.workflow.trigger.TriggerType;
+import endorphins.april.service.workflow.TriggerType;
 
 import com.google.common.collect.Lists;
 
@@ -28,14 +28,10 @@ public class CustomizedWorkflowRepositoryImpl implements CustomizedWorkflowRepos
 
     @Override
     public List<Workflow> findByTriggerTypeOrderByPriorityAsc(TriggerType triggerType) {
-        //        CriteriaQuery query = CriteriaQuery.builder(
-        //            new Criteria("trigger.type")
-        //                .is(TriggerType.EVENT_CREATED)
-        //        ).build();
         List<Workflow> result = Lists.newArrayList();
         NativeQuery query = NativeQuery.builder()
             .withQuery(q -> q.term(TermQuery.of(a -> a.field("trigger.type")
-                .value(TriggerType.EVENT_CREATED.name()))))
+                .value(triggerType.name()))))
             .withSort(Sort.by("priority").ascending())
             .build();
         SearchHits<Workflow> workflowSearchHits = operations.search(query, Workflow.class);

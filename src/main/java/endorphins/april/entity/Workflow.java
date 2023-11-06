@@ -12,10 +12,10 @@ import org.springframework.data.elasticsearch.annotations.ValueConverter;
 import org.springframework.data.elasticsearch.annotations.WriteTypeHint;
 
 import endorphins.april.service.valueconverter.ActionPropertyValueConverter;
+import endorphins.april.service.workflow.Action;
+import endorphins.april.service.workflow.Trigger;
 import endorphins.april.service.workflow.WorkflowStatus;
 import endorphins.april.service.workflow.WorkflowType;
-import endorphins.april.service.workflow.action.Action;
-import endorphins.april.service.workflow.trigger.Trigger;
 import lombok.Builder;
 import lombok.Data;
 
@@ -59,6 +59,12 @@ public class Workflow implements Serializable {
     private String tags;
 
     /**
+     * 摄取器id
+     */
+    @Field(type = FieldType.Keyword)
+    private String ingestionId;
+
+    /**
      * 工作流类型
      */
     @Field(type = FieldType.Keyword)
@@ -84,4 +90,7 @@ public class Workflow implements Serializable {
 
     @Field(type = FieldType.Keyword)
     private String description;
+
+    public static final String DEFAULT_TAG = "default";
+    public static final String INGESTION_TAG = "ingestion";
 }

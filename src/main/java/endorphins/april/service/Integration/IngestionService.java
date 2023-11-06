@@ -5,7 +5,7 @@ import java.util.List;
 
 import endorphins.april.model.Event;
 import endorphins.april.model.ingestion.IngestionInstanceVo;
-import endorphins.april.model.PostStatus;
+import endorphins.april.model.ingestion.PostStatus;
 
 /**
  * @author timothy

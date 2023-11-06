@@ -4,7 +4,7 @@ import java.util.Map;
 
 import org.springframework.data.elasticsearch.core.mapping.PropertyValueConverter;
 
-import endorphins.april.service.workflow.action.Action;
+import endorphins.april.service.workflow.Action;
 
 /**
  * workflow 中每一个action的转换
@@ -26,7 +26,6 @@ public class ActionPropertyValueConverter implements PropertyValueConverter {
             String name = valueMap.get("name");
             String context = valueMap.get("params");
             action = new Action(name, context);
-            action.initExecutor();
         }
         return action;
     }

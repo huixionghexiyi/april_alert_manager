@@ -8,6 +8,7 @@ import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 import org.springframework.data.elasticsearch.annotations.ValueConverter;
 
+import endorphins.april.config.AtEventConfig;
 import endorphins.april.model.ingestion.IngestionInstanceStatus;
 import endorphins.april.model.ingestion.IngestionInstanceVo;
 import endorphins.april.model.ingestion.IngestionSourceType;
@@ -33,12 +34,6 @@ public class IngestionInstance {
 
     @Field(type = FieldType.Keyword)
     private String description;
-
-    /**
-     * ingestion source id
-     */
-    @Field(type = FieldType.Keyword)
-    private String sourceId;
 
     /**
      * ingestion source typ 和 ingestion source id 一一对应
@@ -76,9 +71,8 @@ public class IngestionInstance {
         IngestionInstance instance = new IngestionInstance();
         instance.setName(ingestionInstanceVo.getName());
         instance.setDescription(ingestionInstanceVo.getDescription());
-        instance.setSourceId(ingestionInstanceVo.getSourceId());
         instance.setSourceType(ingestionInstanceVo.getSourceType());
-        instance.setTenantId(1L);
+        instance.setTenantId(AtEventConfig.defaultTenantId);
         instance.setConfig(ingestionInstanceVo.getConfig());
 
         Long createTime = ingestionInstanceVo.getCreateTime();
