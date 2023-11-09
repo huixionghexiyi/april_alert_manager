@@ -10,9 +10,9 @@ import endorphins.april.model.mapping.OperatorType;
 import endorphins.april.service.workflow.ActionExecutor;
 import endorphins.april.service.workflow.WorkflowExecutorContext;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -24,18 +24,17 @@ import java.util.Map;
  * @DateTime: 2023/8/24 17:23
  **/
 @Data
-@NoArgsConstructor
 public class RawEventMappingActionExecutor implements ActionExecutor {
 
     private RawEventMappingActionParams params;
 
-    public RawEventMappingActionExecutor(RawEventMappingActionParams params) {
-        this.params = params;
+    public RawEventMappingActionExecutor(IngestionConfig ingestionConfig) {
+        this.params = new RawEventMappingActionParams(ingestionConfig);
     }
 
     @Override
     public void execute(WorkflowExecutorContext context, WorkflowRawEvent rawEvent) {
-        IngestionConfig config = params.getConfig();
+        IngestionConfig config = params.getIngestionConfig();
         for (MappingRule mappingRule : config.getMappings()) {
             switch (mappingRule.getType()) {
                 case BASIC:
@@ -72,7 +71,7 @@ public class RawEventMappingActionExecutor implements ActionExecutor {
         }
         if (targetValue != null) {
             targetRawEvent.put(targetKey, targetValue);
-        } else {
+        } else if (StringUtils.isNotEmpty(mappingRule.getDefaultValue())) {
             targetRawEvent.put(targetKey, mappingRule.getDefaultValue());
         }
     }
@@ -89,20 +88,26 @@ public class RawEventMappingActionExecutor implements ActionExecutor {
         Map<String, Object> targetRawEvent = rawEvent.getTargetRawEvent();
         for (Conditional conditional : conditionalList) {
             // 第一个 conditional 满足，则break
-            List<Boolean> conditionResult = Lists.newArrayListWithCapacity(conditional.getConditions().size());
-            for (Condition condition : conditional.getConditions()) {
-                if (sourceRawEvent.containsKey(condition.getSourceKey())) {
-                    // TODO tags 中的参数
-                    Object value = sourceRawEvent.get(condition.getSourceKey());
-                    conditionResult.add(condition.checkValue(value));
-                } else if (OperatorType.NOT_EXIST == condition.getOperator()) {
-                    conditionResult.add(true);
-                } else {
-                    conditionResult.add(false);
+            List<Condition> conditions = conditional.getConditions();
+            boolean checkFinalResult = true;
+            // 如果有条件，则进行条件判断
+            if (CollectionUtils.isNotEmpty(conditions)) {
+                List<Boolean> conditionResult = Lists.newArrayListWithCapacity(conditions.size());
+                for (Condition condition : conditions) {
+                    if (sourceRawEvent.containsKey(condition.getSourceKey())) {
+                        // TODO tags 中的参数
+                        Object value = sourceRawEvent.get(condition.getSourceKey());
+                        conditionResult.add(condition.checkValue(value));
+                    } else if (OperatorType.NOT_EXIST == condition.getOperator()) {
+                        conditionResult.add(true);
+                    } else {
+                        conditionResult.add(false);
+                    }
                 }
+                checkFinalResult = conditional.checkValue(conditionResult);
             }
             // 如果满足当前条件，则进行 mapping，并且退出当前 conditional
-            if (conditional.checkValue(conditionResult)) {
+            if (checkFinalResult) {
                 MappingRule mapping = conditional.getMapping();
                 Object sourceValue = null;
                 // TODO 这是一段公共逻辑，可以提取出来
@@ -118,8 +123,8 @@ public class RawEventMappingActionExecutor implements ActionExecutor {
                 if (sourceValue == null) {
                     sourceValue = mapping.getDefaultValue();
                 }
-                if (MapUtils.isNotEmpty(conditional.getConverter())) {
-                    sourceValue = conditional.convertValue(sourceValue);
+                if (MapUtils.isNotEmpty(mappingRule.getConverter())) {
+                    sourceValue = mappingRule.convertValue(sourceValue);
                 }
                 targetRawEvent.put(mapping.getTargetKey(), sourceValue);
                 break;

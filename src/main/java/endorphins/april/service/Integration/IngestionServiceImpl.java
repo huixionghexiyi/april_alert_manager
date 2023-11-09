@@ -77,10 +77,10 @@ public class IngestionServiceImpl implements IngestionService {
     }
 
     @Override
-    public boolean create(IngestionInstanceVo ingestionInstanceVo) {
+    public String create(IngestionInstanceVo ingestionInstanceVo) {
         // TODO 规范性验证
         IngestionInstance instance = instanceRepository.save(IngestionInstance.createByVo(ingestionInstanceVo));
         rawEventConsumerManager.addConsumer(instance);
-        return true;
+        return instance.getId();
     }
 }

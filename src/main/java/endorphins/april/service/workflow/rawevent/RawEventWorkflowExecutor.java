@@ -1,16 +1,13 @@
 package endorphins.april.service.workflow.rawevent;
 
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.collections4.CollectionUtils;
-
 import endorphins.april.entity.Workflow;
-import endorphins.april.service.workflow.Term;
-import endorphins.april.service.workflow.TriggerType;
-import endorphins.april.service.workflow.WorkflowExecutorContext;
 import endorphins.april.service.workflow.Action;
 import endorphins.april.service.workflow.Trigger;
+import endorphins.april.service.workflow.TriggerType;
+import endorphins.april.service.workflow.WorkflowExecutorContext;
+import endorphins.april.service.workflow.event.WorkflowEvent;
+
+import java.util.Map;
 
 /**
  * @author timothy
@@ -37,6 +34,24 @@ public class RawEventWorkflowExecutor implements Runnable {
                 }
             }
         }
+        Map<String, Object> targetRawEvent = workflowRawEvent.getTargetRawEvent();
+        // TODO 构建 workflowEvent
+        WorkflowEvent workflowEvent = WorkflowEvent.builder()
+                .check(targetRawEvent.getOrDefault("check", "").toString())
+                .description(targetRawEvent.getOrDefault("description", "").toString())
+                .kind(targetRawEvent.getOrDefault("kind", "").toString())
+                .source(targetRawEvent.getOrDefault("source", "").toString())
+                .service(targetRawEvent.getOrDefault("service", "").toString())
+                .severity((Integer) targetRawEvent.getOrDefault("severity", 0))
+                .deduplicationKey(targetRawEvent.getOrDefault("dedupe_key", "").toString())
+                .build();
+        if (targetRawEvent.containsKey("time")) {
+            if (targetRawEvent.get("time") instanceof Long) {
+                workflowEvent.setTime((Long) targetRawEvent.get("time"));
+            }
+        }
+
+        context.getEventQueue().add(workflowEvent);
     }
 
     private boolean isMatch(Trigger trigger) {

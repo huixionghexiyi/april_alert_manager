@@ -1,16 +1,10 @@
 package endorphins.april.model;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.Map;
-import java.util.TreeSet;
-
-import org.apache.commons.lang3.StringUtils;
 
 import lombok.Data;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.sun.istack.internal.NotNull;
 
 /**
@@ -46,7 +40,7 @@ public class Event implements Serializable {
 
     private Integer severity;
 
-    private String deduplicationKey;
+    private String dedupeKey;
 
     private long time;
 

@@ -29,11 +29,6 @@ public class Conditional {
      */
     private MappingRule mapping;
 
-    /**
-     * 当前映射规则的 值的映射
-     */
-    private Map<MappingConverterType, List<String>> converter;
-
     public Boolean checkValue(List<Boolean> conditionResult) {
         if (operator == OperatorType.AND) {
             Boolean ret = true;
@@ -49,17 +44,6 @@ public class Conditional {
             return ret;
         }
         throw new UnsupportedOperationException("Not Support operator[" + operator + "]");
-    }
-
-    public Object convertValue(Object sourceValue) {
-        List<String> sourceValues = converter.get(MappingConverterType.sourceValues);
-        List<String> targetValues = converter.get(MappingConverterType.targetValues);
-        for (int i = 0; i < sourceValues.size(); i++) {
-            if (sourceValues.get(i).equals(sourceValue.toString())) {
-                return targetValues.get(i);
-            }
-        }
-        return sourceValue;
     }
 
     /**

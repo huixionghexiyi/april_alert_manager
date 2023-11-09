@@ -59,7 +59,7 @@ public class IngestionController {
     }
 
     @PostMapping
-    public boolean create(@RequestBody IngestionInstanceVo ingestionInstanceVo) {
+    public String create(@RequestBody IngestionInstanceVo ingestionInstanceVo) {
         return ingestionService.create(ingestionInstanceVo);
     }
 

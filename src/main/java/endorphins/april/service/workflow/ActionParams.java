@@ -33,7 +33,7 @@ public interface ActionParams {
                 JsonUtils.parse(params, DeduplicationActionParams.class));
         } else if(name.equals(RawEventMappingActionParams.name)) {
             IngestionConfig ingestionConfig = JsonUtils.parse(params, IngestionConfig.class);
-            return new RawEventMappingActionExecutor(new RawEventMappingActionParams(ingestionConfig));
+            return new RawEventMappingActionExecutor(ingestionConfig);
         }
         throw new NotImplementedException();
     }

@@ -13,10 +13,10 @@ public class RawEventMappingActionParams implements ActionParams {
 
     public static final String name = "ingestionMapping";
 
-    IngestionConfig config;
+    IngestionConfig ingestionConfig;
 
-    public RawEventMappingActionParams(IngestionConfig config) {
-        this.config = config;
+    public RawEventMappingActionParams(IngestionConfig ingestionConfig) {
+        this.ingestionConfig = ingestionConfig;
     }
     @Override
     public String getName() {

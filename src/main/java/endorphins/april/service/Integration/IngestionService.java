@@ -25,5 +25,5 @@ public interface IngestionService {
      * @param ingestionInstanceVo
      * @return
      */
-    boolean create(IngestionInstanceVo ingestionInstanceVo);
+    String create(IngestionInstanceVo ingestionInstanceVo);
 }

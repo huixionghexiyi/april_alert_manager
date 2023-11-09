@@ -29,7 +29,9 @@ public class WorkflowEvent {
     @Setter
     private String kind;
     private String type;
-    private long time;
+
+    @Setter
+    private Long time;
     private String manager;
     private String managerId;
     /**

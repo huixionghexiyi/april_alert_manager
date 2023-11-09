@@ -1,6 +1,7 @@
 package endorphins.april.model.mapping;
 
 import java.util.List;
+import java.util.Map;
 
 import lombok.Data;
 
@@ -34,10 +35,26 @@ public class MappingRule {
      */
     private List<Conditional> conditional;
 
+    /**
+     * 当前映射规则的 值的映射
+     */
+    private Map<MappingConverterType, List<String>> converter;
+
     private String defaultValue;
 
     /**
      * 当 type 为 CONCATENATE时，使用该字段
      */
     private String delimiter;
+
+    public Object convertValue(Object sourceValue) {
+        List<String> sourceValues = converter.get(MappingConverterType.sourceValues);
+        List<String> targetValues = converter.get(MappingConverterType.targetValues);
+        for (int i = 0; i < sourceValues.size(); i++) {
+            if (sourceValues.get(i).equals(sourceValue.toString())) {
+                return targetValues.get(i);
+            }
+        }
+        return sourceValue;
+    }
 }

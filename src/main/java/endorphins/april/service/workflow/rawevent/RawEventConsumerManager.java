@@ -42,10 +42,9 @@ public class RawEventConsumerManager {
                 .type(TriggerType.RAW_EVENT_COLLECT)
                 .build();
         List<Action> steps = Lists.newArrayList();
-        Action action = new Action();
-        action.setName(RawEventMappingActionParams.name);
-        action.setParams(JsonUtils.toJSONString(instance.getConfig()));
+        Action action = new Action(RawEventMappingActionParams.name, JsonUtils.toJSONString(instance.getConfig()));
         steps.add(action);
+        steps.add(new Action(RawEventMappingActionParams.name, JsonUtils.toJSONString(instance)));
         Workflow workflow = Workflow.builder()
                 .createUserId(instance.getCreateUserId())
                 .tags(Workflow.INGESTION_TAG)

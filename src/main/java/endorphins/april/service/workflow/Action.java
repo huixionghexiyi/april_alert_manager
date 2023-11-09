@@ -20,14 +20,10 @@ public class Action {
     @Transient
     private ActionExecutor executor;
 
-    public Action() {
-    }
-
     public Action(String name, String params) {
         this.name = name;
         this.params = params;
         this.executor = ActionParams.getExecutorByName(name, params);
-
     }
 
     public void execute(WorkflowExecutorContext context, WorkflowEvent workflowEvent) {
