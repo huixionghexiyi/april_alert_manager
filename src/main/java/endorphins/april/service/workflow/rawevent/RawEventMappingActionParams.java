@@ -15,6 +15,9 @@ public class RawEventMappingActionParams implements ActionParams {
 
     IngestionConfig config;
 
+    public RawEventMappingActionParams(IngestionConfig config) {
+        this.config = config;
+    }
     @Override
     public String getName() {
         return name;

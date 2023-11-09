@@ -1,22 +1,21 @@
 package endorphins.april.service.workflow.rawevent;
 
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.MapUtils;
-
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 import endorphins.april.model.mapping.Conditional;
 import endorphins.april.model.mapping.Conditional.Condition;
 import endorphins.april.model.mapping.IngestionConfig;
 import endorphins.april.model.mapping.MappingRule;
+import endorphins.april.model.mapping.OperatorType;
 import endorphins.april.service.workflow.ActionExecutor;
 import endorphins.april.service.workflow.WorkflowExecutorContext;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 
-import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 去重 action 作为每个 workflow 的最后一个 step
@@ -65,10 +64,10 @@ public class RawEventMappingActionExecutor implements ActionExecutor {
         Object targetValue = null;
         Map<String, Object> sourceRawEvent = rawEvent.getSourceRawEvent();
         Map<String, Object> targetRawEvent = rawEvent.getTargetRawEvent();
-        for (String sourceKey : mappingRule.getSourceKeys()) {
-            Object sourceValue = sourceRawEvent.get(sourceKey);
-            if (sourceValue != null) {
-                targetValue = sourceValue;
+        for (String mappingSourceKey : mappingRule.getSourceKeys()) {
+
+            if (sourceRawEvent.containsKey(mappingSourceKey)) {
+                targetValue = sourceRawEvent.get(mappingSourceKey);
             }
         }
         if (targetValue != null) {
@@ -92,14 +91,21 @@ public class RawEventMappingActionExecutor implements ActionExecutor {
             // 第一个 conditional 满足，则break
             List<Boolean> conditionResult = Lists.newArrayListWithCapacity(conditional.getConditions().size());
             for (Condition condition : conditional.getConditions()) {
-                Object value = sourceRawEvent.get(condition.getSourceKey());
-                conditionResult.add(condition.checkValue(value));
+                if (sourceRawEvent.containsKey(condition.getSourceKey())) {
+                    // TODO tags 中的参数
+                    Object value = sourceRawEvent.get(condition.getSourceKey());
+                    conditionResult.add(condition.checkValue(value));
+                } else if (OperatorType.NOT_EXIST == condition.getOperator()) {
+                    conditionResult.add(true);
+                } else {
+                    conditionResult.add(false);
+                }
             }
             // 如果满足当前条件，则进行 mapping，并且退出当前 conditional
             if (conditional.checkValue(conditionResult)) {
                 MappingRule mapping = conditional.getMapping();
                 Object sourceValue = null;
-                // TODO 这是一段公共逻辑 ，可以提取出来
+                // TODO 这是一段公共逻辑，可以提取出来
                 List<String> sourceKeys = mapping.getSourceKeys();
                 if (CollectionUtils.isNotEmpty(sourceKeys)) {
                     for (String sourceKey : sourceKeys) {

@@ -115,7 +115,7 @@ public class AtEventRunner implements ApplicationRunner {
     }
 
     private void initEventQueue() {
-        Iterable<ApiKey> allApiKey = apiKeyRepository.findAll();
+        Iterable<ApiKey> allApiKey = apiKeyRepository.findAll(); // 这个要改成查用户，一个用户一个 consumer queue
         for (ApiKey apiKey : allApiKey) {
             Long tenantId = apiKey.getTenantId();
             Long userId = apiKey.getCreateUserId();

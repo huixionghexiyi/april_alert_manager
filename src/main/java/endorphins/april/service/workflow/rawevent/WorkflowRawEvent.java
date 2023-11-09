@@ -26,8 +26,8 @@ public class WorkflowRawEvent {
     Map<String, Object> targetRawEvent;
 
     public WorkflowRawEvent(Map<String, Object> sourceRawEvent) {
-        sourceRawEvent = sourceRawEvent;
-        targetRawEvent = Maps.newHashMap();
+        this.sourceRawEvent = sourceRawEvent;
+        this.targetRawEvent = Maps.newHashMap();
     }
 
 }

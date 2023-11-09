@@ -2,6 +2,7 @@ package endorphins.april.service.Integration;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import endorphins.april.model.Event;
 import endorphins.april.model.ingestion.IngestionInstanceVo;
@@ -17,7 +18,7 @@ public interface IngestionService {
 
     boolean status(PostStatus status);
 
-    boolean custom(String apiKey, String ingestionId, ArrayList<Event> events);
+    boolean custom(String apiKey, String ingestionId, Map<String, Object> rawEvent);
 
     /**
      * 创建 ingestion instance

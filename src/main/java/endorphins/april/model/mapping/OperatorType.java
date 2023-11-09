@@ -13,6 +13,8 @@ public enum OperatorType {
     NOT_CONTAINS("not Contains"),
     NOT_BEGIN_WITH("not begin with"),
     NOT_END_WITH("not end with"),
+    EXIST("exist"),
+    NOT_EXIST("not exist"),
     AND("and"),
     OR("or");
 

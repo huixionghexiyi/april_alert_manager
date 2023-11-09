@@ -1,20 +1,22 @@
 package endorphins.april.service.Integration;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import endorphins.april.entity.IngestionInstance;
 import endorphins.april.model.Event;
 import endorphins.april.model.ingestion.IngestionInstanceVo;
 import endorphins.april.model.ingestion.PostStatus;
 import endorphins.april.repository.IngestionInstanceRepository;
-import endorphins.april.service.workflow.event.WorkflowEvent;
-import endorphins.april.service.workflow.rawevent.RawEventConsumerManager;
-import endorphins.april.service.workflow.event.EventQueueManager;
 import endorphins.april.service.workflow.event.EventBlockingQueue;
+import endorphins.april.service.workflow.event.EventQueueManager;
+import endorphins.april.service.workflow.event.WorkflowEvent;
+import endorphins.april.service.workflow.rawevent.RawEventBlockingQueue;
+import endorphins.april.service.workflow.rawevent.RawEventConsumerManager;
+import endorphins.april.service.workflow.rawevent.RawEventQueueManager;
+import endorphins.april.service.workflow.rawevent.WorkflowRawEvent;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author timothy
@@ -31,6 +33,9 @@ public class IngestionServiceImpl implements IngestionService {
 
     @Autowired
     private RawEventConsumerManager rawEventConsumerManager;
+
+    @Autowired
+    private RawEventQueueManager rawEventQueueManager;
 
     @Override
     public boolean events(String apiKey, List<Event> events) {
@@ -51,14 +56,24 @@ public class IngestionServiceImpl implements IngestionService {
         ingestionInstance.setId(status.getIngestionInstanceId());
         ingestionInstance.setStatus(status.getStatus());
         instanceRepository.save(ingestionInstance);
-        // TODO 停止 ingestion instance
+        // TODO 停止 ingestion instance cosumer
         return true;
     }
 
+    /**
+     * 自定义原始告警
+     *
+     * @param apiKey
+     * @param ingestionId
+     * @param rawEvent
+     * @return
+     */
     @Override
-    public boolean custom(String apiKey, String ingestionId, ArrayList<Event> events) {
-        // TODO
-        return false;
+    public boolean custom(String apiKey, String ingestionId, Map<String, Object> rawEvent) {
+        WorkflowRawEvent workflowRawEvent = new WorkflowRawEvent(rawEvent);
+        RawEventBlockingQueue queue = rawEventQueueManager.getQueueByIngestionId(ingestionId);
+        queue.add(workflowRawEvent);
+        return true;
     }
 
     @Override
@@ -66,7 +81,6 @@ public class IngestionServiceImpl implements IngestionService {
         // TODO 规范性验证
         IngestionInstance instance = instanceRepository.save(IngestionInstance.createByVo(ingestionInstanceVo));
         rawEventConsumerManager.addConsumer(instance);
-
         return true;
     }
 }

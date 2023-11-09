@@ -1,6 +1,7 @@
 package endorphins.april.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,8 +35,8 @@ public class IngestionController {
     private IngestionService ingestionService;
 
     @PostMapping("/custom/{ingestionId}")
-    public boolean custom(@RequestHeader String apiKey, @PathVariable String ingestionId, @RequestBody Event event) {
-        return ingestionService.custom(apiKey, ingestionId, Lists.newArrayList(event));
+    public boolean custom(@RequestHeader String apiKey, @PathVariable String ingestionId, @RequestBody Map<String, Object> rawEvent) {
+        return ingestionService.custom(apiKey, ingestionId, rawEvent);
     }
 
     @PostMapping({"/events/{apiKey}", "/events"})

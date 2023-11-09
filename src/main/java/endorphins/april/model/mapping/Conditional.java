@@ -93,6 +93,8 @@ public class Conditional {
                     return value.toString().endsWith(this.value);
                 case NOT_END_WITH:
                     return !value.toString().endsWith(this.value);
+                case EXIST:
+                    return value != null;
                 default:
                     throw new UnsupportedOperationException("Not Support operator[" + operator + "]");
             }

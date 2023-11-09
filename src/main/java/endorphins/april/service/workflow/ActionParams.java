@@ -1,5 +1,6 @@
 package endorphins.april.service.workflow;
 
+import endorphins.april.model.mapping.IngestionConfig;
 import org.apache.commons.lang3.NotImplementedException;
 
 import endorphins.april.service.workflow.event.ClassifyActionExecutor;
@@ -31,7 +32,8 @@ public interface ActionParams {
             return new DeduplicationActionExecutor(
                 JsonUtils.parse(params, DeduplicationActionParams.class));
         } else if(name.equals(RawEventMappingActionParams.name)) {
-            return new RawEventMappingActionExecutor(JsonUtils.parse(params, RawEventMappingActionParams.class));
+            IngestionConfig ingestionConfig = JsonUtils.parse(params, IngestionConfig.class);
+            return new RawEventMappingActionExecutor(new RawEventMappingActionParams(ingestionConfig));
         }
         throw new NotImplementedException();
     }
