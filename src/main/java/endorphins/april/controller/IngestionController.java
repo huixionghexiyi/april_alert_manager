@@ -1,24 +1,18 @@
 package endorphins.april.controller;
 
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
+import endorphins.april.infrastructure.web.ResponseResult;
+import endorphins.april.infrastructure.web.Result;
 import endorphins.april.model.Event;
-import endorphins.april.model.ingestion.PostStatus;
 import endorphins.april.model.ingestion.IngestionInstanceVo;
+import endorphins.april.model.ingestion.PostStatus;
 import endorphins.april.service.Integration.IngestionService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
-import com.google.common.collect.Lists;
+import java.util.List;
+import java.util.Map;
 
 /**
  * <描述>
@@ -26,9 +20,10 @@ import com.google.common.collect.Lists;
  * @author timothy.yang cloudwise
  * @since 2022-12-27 20:37
  */
-@RestController("apiV1")
+@RestController
 @RequestMapping("/api/v1/ingestion")
 @Slf4j
+@ResponseResult
 public class IngestionController {
 
     @Autowired
@@ -41,7 +36,7 @@ public class IngestionController {
 
     @PostMapping({"/events/{apiKey}", "/events"})
     public boolean events(@RequestHeader(value = "apiKey", required = false) String headerApiKey,
-        @PathVariable(value = "apiKey", required = false) String pathApiKey, @RequestBody List<Event> events) {
+                          @PathVariable(value = "apiKey", required = false) String pathApiKey, @RequestBody List<Event> events) {
         String apiKey;
         if (StringUtils.isNotBlank(headerApiKey)) {
             apiKey = headerApiKey;
@@ -59,8 +54,8 @@ public class IngestionController {
     }
 
     @PostMapping
-    public String create(@RequestBody IngestionInstanceVo ingestionInstanceVo) {
-        return ingestionService.create(ingestionInstanceVo);
+    public Result<String> create(@RequestBody IngestionInstanceVo ingestionInstanceVo) {
+        return Result.success(ingestionService.create(ingestionInstanceVo));
     }
 
 }

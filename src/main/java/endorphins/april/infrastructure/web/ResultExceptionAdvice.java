@@ -7,6 +7,5 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  * @Description TODO
  * @DateTime: 2023/4/28 11:31
  **/
-@RestControllerAdvice
 public class ResultExceptionAdvice {
 }

@@ -11,7 +11,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
  * @since 2022-12-26 22:10
  */
 @SpringBootApplication
-@EnableAspectJAutoProxy
+//@EnableAspectJAutoProxy
 public class AprilAlertManagerMain {
     public static void main(String[] args) {
         SpringApplication.run(AprilAlertManagerMain.class, args);
