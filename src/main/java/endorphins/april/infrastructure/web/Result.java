@@ -16,7 +16,6 @@ public class Result<T> implements Serializable {
     private static final int SUCCESS_CODE = 200;
     private static final int CLIENT_ERROR_CODE = 400;
     private static final int SYS_ERROR_CODE = 500;
-    private static final int UNKNOWN_ERROR_CODE = 600;
 
     private int code;
 
@@ -34,7 +33,12 @@ public class Result<T> implements Serializable {
         return new Result<>(SUCCESS_CODE, null, data);
     }
 
-    public static <T> Result<T> fail(String message) {
-        return new Result<>(SUCCESS_CODE, message, null);
+    public static <T> Result<T> systemFail(String message) {
+        return new Result<>(SYS_ERROR_CODE, message, null);
     }
+
+    public static <T> Result<T> applicationFail(String message) {
+        return new Result<>(CLIENT_ERROR_CODE, message, null);
+    }
+
 }

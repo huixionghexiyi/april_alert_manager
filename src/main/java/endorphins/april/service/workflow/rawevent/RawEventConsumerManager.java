@@ -10,12 +10,14 @@ import endorphins.april.repository.AlarmRepository;
 import endorphins.april.repository.WorkflowRepository;
 import endorphins.april.service.workflow.*;
 import endorphins.april.service.workflow.event.EventQueueManager;
+import endorphins.april.service.workflow.event.JoinerHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author timothy
@@ -36,23 +38,37 @@ public class RawEventConsumerManager {
     @Autowired
     private AlarmRepository alarmRepository;
 
+    public static final String consumerNamePrefix = "raw-event-consumer-";
+
+
     private final Map<String, List<Workflow>> ingestionWorkflowMap = Maps.newConcurrentMap();
 
     private RawEventConsumer basicWorkflowConsumer;
+    private Map<String, RawEventConsumer> consumerAuditMap = Maps.newConcurrentMap();
 
-    public void addAndRunConsumer(IngestionInstance instance) {
-        List<Workflow> workflows = Lists.newArrayList();
+    private AtomicInteger consumerCount = new AtomicInteger(0);
+
+    public void startConsumer(IngestionInstance instance) {
 
         Workflow workflow = createWorkflowByIngestion(instance);
-        workflows.add(workflow);
-
-        workflowRepository.save(workflow);
 
         // 添加 rawEventQueue
         rawEventQueueManager.addRawEventQueue(instance, instance.getCreateUserId(), instance.getTenantId());
 
         // 添加到 consumerManager
-        runConsumer(instance, workflows);
+        runConsumer(instance, Lists.newArrayList(workflow));
+    }
+
+    public void stopConsumer(IngestionInstance ingestionInstance) {
+        if (ingestionInstance.isSingleConsumerScale()) {
+            String consumerNameByIngestion = getConsumerNameByIngestion(ingestionInstance);
+            if (consumerAuditMap.containsKey(consumerNameByIngestion)) {
+                RawEventConsumer rawEventConsumer = consumerAuditMap.get(consumerNameByIngestion);
+                rawEventConsumer.stop();
+            }
+        } else if (ingestionInstance.isMultiConsumerScale()) {
+            // 多消费者模式
+        }
     }
 
     public void runConsumer(IngestionInstance instance, List<Workflow> workflowLists) {
@@ -65,6 +81,12 @@ public class RawEventConsumerManager {
         }
     }
 
+    /**
+     * basic consumer
+     * 只有一个消费者
+     * @param instance
+     * @param workflowLists
+     */
     private void runBasicConsumer(IngestionInstance instance, List<Workflow> workflowLists) {
         ingestionWorkflowMap.put(instance.getId(), workflowLists);
         if (basicWorkflowConsumer == null) {
@@ -75,29 +97,39 @@ public class RawEventConsumerManager {
                         // 处理完成的 rawEvent 需要放到 eventQueue 中
                         .eventQueue(eventQueueManager.getQueueByUserId(instance.getCreateUserId()))
                         .build();
-                basicWorkflowConsumer = RawEventConsumer.builder()
-                        .rawEventQueue(rawEventQueueManager.getBasicRawEventQueue())
-                        .threadPoolManager(threadPoolManager)
-                        .workflowExecutorContext(executorContext)
-                        .build();
+                basicWorkflowConsumer = getConsumer("basic", rawEventQueueManager.getBasicRawEventQueue(), executorContext);
                 threadPoolManager.getRawEventConsumerThreadPool().execute(basicWorkflowConsumer);
+                consumerAuditMap.put("basic", basicWorkflowConsumer);
             }
         }
+    }
+
+    private RawEventConsumer getConsumer(String name, RawEventBlockingQueue rawEventQueueManager, WorkflowExecutorContext executorContext) {
+        return RawEventConsumer.builder()
+                .name(name)
+                .index(consumerCount.incrementAndGet())
+                .rawEventQueue(rawEventQueueManager)
+                .threadPoolManager(threadPoolManager)
+                .workflowExecutorContext(executorContext)
+                .build();
     }
 
     private void runSingleConsumer(IngestionInstance instance, List<Workflow> workflows) {
         WorkflowExecutorContext executorContext = WorkflowExecutorContext.builder()
                 .alarmRepository(alarmRepository)
                 .workflowList(workflows)
-                // 处理完成的 rawEvent 需要放到 eventQueue 中
+                // 处理完成的 rawEvent 需要放到 eventQueue 中，所以需要获取 当前 ingestion 对应的 eventQueue
                 .eventQueue(eventQueueManager.getQueueByUserId(instance.getCreateUserId()))
                 .build();
-        RawEventConsumer consumer = RawEventConsumer.builder()
-                .rawEventQueue(rawEventQueueManager.getQueueByIngestionId(instance.getId()))
-                .threadPoolManager(threadPoolManager)
-                .workflowExecutorContext(executorContext)
-                .build();
+
+        String consumerName = getConsumerNameByIngestion(instance);
+        RawEventConsumer consumer = getConsumer(consumerName, rawEventQueueManager.getQueueByIngestionId(instance.getId()), executorContext);
         threadPoolManager.getRawEventConsumerThreadPool().execute(consumer);
+        consumerAuditMap.put(consumerName, consumer);
+    }
+
+    private static String getConsumerNameByIngestion(IngestionInstance instance) {
+        return JoinerHelper.CONN_JOINER.join(instance.getId(), instance.getName());
     }
 
     private void runMultiConsumer(IngestionInstance instance, List<Workflow> workflowLists) {

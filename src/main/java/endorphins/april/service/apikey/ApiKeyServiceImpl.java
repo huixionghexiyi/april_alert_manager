@@ -26,7 +26,6 @@ public class ApiKeyServiceImpl implements ApiKeyService {
 
     @Override
     public Optional<ApiKey> findById(String apiKey) {
-        // TODO 增加缓存
         return repository.findById(apiKey);
     }
 }

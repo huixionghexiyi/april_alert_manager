@@ -42,7 +42,10 @@ public class IngestionInstance {
     private IngestionSourceType sourceType;
 
     /**
-     *
+     * 数据规模类型
+     * BASIC:使用一个共同的 consumer
+     * SINGLE:使用一个 consumer 对应一个 ingestion
+     * MULTI:使用多个 consumer 对应一个 ingestion
      */
     @Field(type = FieldType.Keyword, nullValue = "BASIC")
     private IngestionDataScaleType scaleType;

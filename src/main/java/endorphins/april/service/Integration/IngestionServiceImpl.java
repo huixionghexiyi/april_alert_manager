@@ -2,6 +2,7 @@ package endorphins.april.service.Integration;
 
 import endorphins.april.entity.IngestionInstance;
 import endorphins.april.model.Event;
+import endorphins.april.model.ingestion.IngestionInstanceStatus;
 import endorphins.april.model.ingestion.IngestionInstanceVo;
 import endorphins.april.model.ingestion.PostStatus;
 import endorphins.april.repository.IngestionInstanceRepository;
@@ -56,10 +57,11 @@ public class IngestionServiceImpl implements IngestionService {
         ingestionInstance.setId(status.getIngestionInstanceId());
         ingestionInstance.setStatus(status.getStatus());
         instanceRepository.save(ingestionInstance);
-        if (rawEventQueueManager.getBasicIngestionIds().contains(status.getIngestionInstanceId())) {
-            return true;
+        if (status.getStatus() == IngestionInstanceStatus.Stopped) {
+            rawEventConsumerManager.stopConsumer(ingestionInstance);
+        } else {
+            rawEventConsumerManager.startConsumer(ingestionInstance);
         }
-
 
         return true;
     }
@@ -84,7 +86,7 @@ public class IngestionServiceImpl implements IngestionService {
     public String create(IngestionInstanceVo ingestionInstanceVo) {
         // TODO 规范性验证
         IngestionInstance instance = instanceRepository.save(IngestionInstance.createByVo(ingestionInstanceVo));
-        rawEventConsumerManager.addAndRunConsumer(instance);
+        rawEventConsumerManager.startConsumer(instance);
         return instance.getId();
     }
 }

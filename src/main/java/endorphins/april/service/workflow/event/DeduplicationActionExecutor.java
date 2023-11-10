@@ -1,19 +1,17 @@
 package endorphins.april.service.workflow.event;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
-import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.StringUtils;
-
+import com.google.common.collect.Lists;
 import endorphins.april.entity.Alarm;
 import endorphins.april.service.workflow.ActionExecutor;
 import endorphins.april.service.workflow.WorkflowExecutorContext;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 
-import com.google.common.collect.Lists;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * 去重 action 作为每个 workflow 的最后一个 step
@@ -41,18 +39,16 @@ public class DeduplicationActionExecutor implements ActionExecutor {
             List<Object> dedupeValue = Lists.newArrayList();
             for (String dedupeField : dedupeFields) {
                 Object dedupeFieldValue = workflowEvent.getByFieldName(dedupeField);
-                if (dedupeFieldValue instanceof Iterable) {
-                    dedupeValue.add(DeduplicationHelper.LIST_JOINER.join((Iterable) dedupeFieldValue));
-                } else if (ObjectUtils.isNotEmpty(dedupeFieldValue)) {
+                if (ObjectUtils.isNotEmpty(dedupeFieldValue)) {
                     dedupeValue.add(dedupeFieldValue);
                 }
             }
-            dedupeKey = DeduplicationHelper.JOINER.join(dedupeValue);
+            dedupeKey = JoinerHelper.JOINER.join(dedupeValue);
         }
 
         Optional<Alarm> alarmOpt = context.getAlarmRepository().findByDedupeKey(dedupeKey);
         Alarm alarm = null;
-        // 如果已经存在，则获取，否则创建
+        // 如果已经存在，则获取并修改，否则创建
         if (alarmOpt.isPresent()) {
             alarm = alarmOpt.get();
             // 判断是否超时等操作
