@@ -1,5 +1,13 @@
 package endorphins.april.entity;
 
+import endorphins.april.config.AtEventConfig;
+import endorphins.april.model.ingestion.IngestionDataScaleType;
+import endorphins.april.model.ingestion.IngestionInstanceStatus;
+import endorphins.april.model.ingestion.IngestionInstanceVo;
+import endorphins.april.model.ingestion.IngestionSourceType;
+import endorphins.april.model.mapping.IngestionConfig;
+import endorphins.april.service.valueconverter.IngestionConfigValueConverter;
+import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -7,14 +15,6 @@ import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 import org.springframework.data.elasticsearch.annotations.ValueConverter;
-
-import endorphins.april.config.AtEventConfig;
-import endorphins.april.model.ingestion.IngestionInstanceStatus;
-import endorphins.april.model.ingestion.IngestionInstanceVo;
-import endorphins.april.model.ingestion.IngestionSourceType;
-import endorphins.april.model.mapping.IngestionConfig;
-import endorphins.april.service.valueconverter.IngestionConfigValueConverter;
-import lombok.Data;
 
 /**
  * @author timothy
@@ -41,6 +41,12 @@ public class IngestionInstance {
     @Field(type = FieldType.Keyword)
     private IngestionSourceType sourceType;
 
+    /**
+     *
+     */
+    @Field(type = FieldType.Keyword, nullValue = "BASIC")
+    private IngestionDataScaleType scaleType;
+
     @Field(type = FieldType.Flattened)
     @ValueConverter(IngestionConfigValueConverter.class)
     private IngestionConfig config;
@@ -64,6 +70,7 @@ public class IngestionInstance {
 
     /**
      * 根据 vo 构建 instance
+     *
      * @param ingestionInstanceVo
      * @return
      */
@@ -73,10 +80,11 @@ public class IngestionInstance {
         instance.setDescription(ingestionInstanceVo.getDescription());
         instance.setSourceType(ingestionInstanceVo.getSourceType());
         instance.setTenantId(AtEventConfig.defaultTenantId);
+        instance.setCreateUserId(AtEventConfig.defaultUserId);
         instance.setConfig(ingestionInstanceVo.getConfig());
 
         Long createTime = ingestionInstanceVo.getCreateTime();
-        if(createTime == null) {
+        if (createTime == null) {
             createTime = System.currentTimeMillis();
         }
         instance.setCreateTime(createTime);
@@ -87,6 +95,12 @@ public class IngestionInstance {
         }
         instance.setUpdateTime(updateTime);
         instance.setStatus(ingestionInstanceVo.getStatus());
+        IngestionDataScaleType scaleType = ingestionInstanceVo.getScaleType();
+        if (scaleType == null) {
+            scaleType = IngestionDataScaleType.BASIC;
+        }
+        instance.setScaleType(scaleType);
+
         return instance;
     }
 }

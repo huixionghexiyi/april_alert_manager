@@ -2,12 +2,13 @@ package endorphins.april.service.workflow.rawevent;
 
 import java.util.List;
 
-import endorphins.april.entity.Workflow;
+import com.google.common.collect.Lists;
 import endorphins.april.infrastructure.json.JsonUtils;
 import endorphins.april.infrastructure.thread.ThreadPoolManager;
 import endorphins.april.service.workflow.WorkflowExecutorContext;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 
 /**
  * @author timothy
@@ -26,12 +27,20 @@ public class RawEventConsumer implements Runnable {
     public void run() {
         while (true) {
             try {
-                WorkflowRawEvent workflowEvent = rawEventQueue.take();
-                threadPoolManager.getEventConsumerThreadPool().execute(
-                    new RawEventWorkflowExecutor(workflowEvent, workflowExecutorContext)
-                );
-                log.info("raw event execute，raw event:{}", JsonUtils.toJSONString(workflowEvent));
-            } catch (InterruptedException e) {
+                List<WorkflowRawEvent> workflowEvents = Lists.newArrayList();
+                rawEventQueue.drainTo(workflowEvents, 100);
+                if(CollectionUtils.isNotEmpty(workflowEvents)) {
+                    for (WorkflowRawEvent workflowEvent : workflowEvents) {
+                        threadPoolManager.getWorkerThreadPool().execute(
+                                new RawEventWorkflowExecutor(workflowEvent, workflowExecutorContext)
+                        );
+                    }
+                    log.debug("raw event execute，raw events:{}", JsonUtils.toJSONString(workflowEvents));
+                } else {
+                    Thread.sleep(1000);
+                }
+            } catch (Exception e) {
+                log.error("raw event execute error", e);
                 Thread.currentThread().interrupt();
             }
         }

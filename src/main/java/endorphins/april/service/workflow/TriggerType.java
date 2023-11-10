@@ -10,7 +10,11 @@ public enum TriggerType {
      */
     RAW_EVENT_COLLECT,
     /**
-     * event 被创建时触发
+     * event 被创建后触发
      */
     EVENT_CREATED,
+    /**
+     * incident 被创建后触发
+     */
+    INCIDENT_CREATED,
 }

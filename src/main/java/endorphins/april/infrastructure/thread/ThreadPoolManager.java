@@ -1,10 +1,10 @@
 package endorphins.april.infrastructure.thread;
 
+import org.springframework.stereotype.Component;
+
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-
-import org.springframework.stereotype.Component;
 
 /**
  * @author timothy
@@ -14,10 +14,12 @@ import org.springframework.stereotype.Component;
 public class ThreadPoolManager {
 
     private ThreadPoolExecutor rawEventThreadPool;
+    private ThreadPoolExecutor rawEventWorkerThreadPool;
 
     private ThreadPoolExecutor eventConsumer;
 
     private Object rawEventLock = new Object();
+    private Object workerLock = new Object();
 
     private Object eventConsumerLock = new Object();
 
@@ -26,20 +28,33 @@ public class ThreadPoolManager {
             synchronized (rawEventLock) {
                 if (rawEventThreadPool == null) {
                     rawEventThreadPool =
-                        new ThreadPoolExecutor(8, 16, 0, TimeUnit.NANOSECONDS,
-                            new LinkedBlockingDeque<>());
+                            new ThreadPoolExecutor(2, 4, 0, TimeUnit.NANOSECONDS,
+                                    new LinkedBlockingDeque<>());
                 }
             }
         }
         return rawEventThreadPool;
     }
 
+    public ThreadPoolExecutor getWorkerThreadPool() {
+        if (rawEventWorkerThreadPool == null) {
+            synchronized (workerLock) {
+                if (rawEventWorkerThreadPool == null) {
+                    rawEventWorkerThreadPool =
+                            new ThreadPoolExecutor(2, 4, 0, TimeUnit.NANOSECONDS,
+                                    new LinkedBlockingDeque<>());
+                }
+            }
+        }
+        return rawEventWorkerThreadPool;
+    }
+
     public ThreadPoolExecutor getEventConsumerThreadPool() {
         if (eventConsumer == null) {
             synchronized (eventConsumerLock) {
                 if (eventConsumer == null) {
-                    eventConsumer = new ThreadPoolExecutor(4, 16, 0, TimeUnit.NANOSECONDS,
-                        new LinkedBlockingDeque<>());
+                    eventConsumer = new ThreadPoolExecutor(2, 4, 0, TimeUnit.NANOSECONDS,
+                            new LinkedBlockingDeque<>());
                 }
             }
         }

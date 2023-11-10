@@ -1,11 +1,11 @@
 package endorphins.april.service.workflow.rawevent;
 
+import endorphins.april.model.ingestion.IngestionDataScaleType;
+import lombok.Data;
+
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-
-import endorphins.april.service.workflow.rawevent.WorkflowRawEvent;
-import lombok.Data;
 
 /**
  * @author timothy
@@ -16,6 +16,7 @@ public class RawEventBlockingQueue {
     private BlockingQueue<WorkflowRawEvent> instance;
     private Long userId;
     private Long tenantId;
+    private IngestionDataScaleType scaleType;
 
     public RawEventBlockingQueue(int size) {
         instance = new ArrayBlockingQueue<>(size);
@@ -36,6 +37,10 @@ public class RawEventBlockingQueue {
 
     public WorkflowRawEvent take() throws InterruptedException {
         return instance.take();
+    }
+
+    public void drainTo(List<WorkflowRawEvent> workflowRawEventList, int maxElements) {
+        instance.drainTo(workflowRawEventList, maxElements);
     }
 
     public void offer(WorkflowRawEvent workflowEvent) {

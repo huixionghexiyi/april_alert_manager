@@ -24,6 +24,8 @@ public class IngestionInstanceVo {
 
     private IngestionSourceType sourceType;
 
+    private IngestionDataScaleType scaleType;
+
     private IngestionConfig config;
 
     private String createdBy;

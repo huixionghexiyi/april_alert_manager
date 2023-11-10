@@ -29,7 +29,7 @@ public class EventConsumer implements Runnable {
         while (true) {
             try {
                 WorkflowEvent workflowEvent = eventQueue.take();
-                threadPoolManager.getEventConsumerThreadPool().execute(
+                threadPoolManager.getWorkerThreadPool().execute(
                     new EventWorkflowExecutor(workflowEvent, workflowExecutorContext)
                 );
                 log.info("event处理完成，event:{}", JsonUtils.toJSONString(workflowEvent));

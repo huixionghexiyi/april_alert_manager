@@ -2,6 +2,7 @@ package endorphins.april.repository;
 
 import java.util.List;
 
+import endorphins.april.model.ingestion.IngestionInstanceStatus;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
@@ -16,4 +17,6 @@ public interface IngestionInstanceRepository
     extends CrudRepository<IngestionInstance, String>, PagingAndSortingRepository<IngestionInstance, String> {
 
     List<ApiKey> findByName(String defaultEventKey);
+
+    List<IngestionInstance> findByStatus(IngestionInstanceStatus ingestionInstanceStatus);
 }

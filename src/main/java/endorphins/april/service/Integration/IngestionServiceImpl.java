@@ -80,7 +80,7 @@ public class IngestionServiceImpl implements IngestionService {
     public String create(IngestionInstanceVo ingestionInstanceVo) {
         // TODO 规范性验证
         IngestionInstance instance = instanceRepository.save(IngestionInstance.createByVo(ingestionInstanceVo));
-        rawEventConsumerManager.addConsumer(instance);
+        rawEventConsumerManager.addAndRunConsumer(instance);
         return instance.getId();
     }
 }

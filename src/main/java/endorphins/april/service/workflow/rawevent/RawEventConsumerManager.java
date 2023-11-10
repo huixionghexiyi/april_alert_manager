@@ -34,19 +34,51 @@ public class RawEventConsumerManager {
 
     private AlarmRepository alarmRepository;
 
-    public void addConsumer(IngestionInstance instance) {
+    public void addAndRunConsumer(IngestionInstance instance) {
         List<Workflow> workflows = Lists.newArrayList();
-        long now = System.currentTimeMillis();
 
+        Workflow workflow = createWorkflowByIngestion(instance);
+        workflows.add(workflow);
+
+        workflowRepository.save(workflow);
+
+        // 添加 rawEventQueue
+        rawEventQueueManager.addRawEventQueue(instance, instance.getCreateUserId(), instance.getTenantId());
+
+        // 添加到 consumerManager
+        runConsumer(instance, workflows);
+    }
+
+    public void runConsumer(IngestionInstance instance, List<Workflow> workflows) {
+        WorkflowExecutorContext executorContext = WorkflowExecutorContext.builder()
+                .alarmRepository(alarmRepository)
+                .workflowList(workflows)
+                .eventQueue(eventQueueManager.getQueueByUserId(instance.getCreateUserId()))
+                .build();
+        RawEventConsumer consumer = RawEventConsumer.builder()
+                .rawEventQueue(rawEventQueueManager.getQueueByIngestionId(instance.getId()))
+                .threadPoolManager(threadPoolManager)
+                .workflowExecutorContext(executorContext)
+                .build();
+        threadPoolManager.getRawEventConsumerThreadPool()
+                .execute(consumer);
+    }
+
+    /**
+     * 根据 ingestion instance 创建一个 workflow
+     *
+     * @param instance
+     * @return
+     */
+    public Workflow createWorkflowByIngestion(IngestionInstance instance) {
+        long now = System.currentTimeMillis();
         Trigger trigger = Trigger.builder()
                 .type(TriggerType.RAW_EVENT_COLLECT)
                 .build();
         List<Action> steps = Lists.newArrayList();
         Action action = new Action(RawEventMappingActionParams.name, JsonUtils.toJSONString(instance.getConfig()));
         steps.add(action);
-        steps.add(new Action(RawEventMappingActionParams.name, JsonUtils.toJSONString(instance)));
-        Workflow workflow = Workflow.builder()
-                .createUserId(instance.getCreateUserId())
+        return Workflow.builder()
                 .tags(Workflow.INGESTION_TAG)
                 .type(WorkflowType.RAW_EVENT)
                 .status(WorkflowStatus.RUNNING)
@@ -55,29 +87,9 @@ public class RawEventConsumerManager {
                 .updateTime(now)
                 .ingestionId(instance.getId())
                 .tenantId(instance.getTenantId())
+                .createUserId(instance.getCreateUserId())
                 .trigger(trigger)
                 .steps(steps)
                 .build();
-        workflows.add(workflow);
-
-        workflowRepository.save(workflow);
-
-        // 添加 rawEventQueue
-        rawEventQueueManager.addRawEventQueue(instance.getId(), instance.getCreateUserId(), instance.getTenantId());
-
-        // 添加到 consumerManager
-        threadPoolManager.getRawEventConsumerThreadPool()
-                .execute(
-                        RawEventConsumer.builder()
-                                .rawEventQueue(rawEventQueueManager.getQueueByIngestionId(instance.getId()))
-                                .threadPoolManager(threadPoolManager)
-                                .workflowExecutorContext(
-                                        WorkflowExecutorContext.builder()
-                                                .alarmRepository(alarmRepository)
-                                                .workflowList(workflows)
-                                                .build()
-                                )
-                                .build()
-                );
     }
 }
