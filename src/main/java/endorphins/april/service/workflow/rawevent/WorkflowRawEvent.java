@@ -18,14 +18,17 @@ public class WorkflowRawEvent {
     /**
      * 接收到的事件数据
      */
-    Map<String, Object> sourceRawEvent;
+    private Map<String, Object> sourceRawEvent;
 
     /**
      * 进行处理后的事件数据
      */
-    Map<String, Object> targetRawEvent;
+    private Map<String, Object> targetRawEvent;
 
-    public WorkflowRawEvent(Map<String, Object> sourceRawEvent) {
+    private String ingestionId;
+
+    public WorkflowRawEvent(String ingestionId, Map<String, Object> sourceRawEvent) {
+        this.ingestionId = ingestionId;
         this.sourceRawEvent = sourceRawEvent;
         this.targetRawEvent = Maps.newHashMap();
     }

@@ -1,6 +1,7 @@
 package endorphins.april.service.workflow;
 
 import java.util.List;
+import java.util.Map;
 
 import endorphins.april.entity.Workflow;
 import endorphins.april.repository.AlarmRepository;
@@ -19,4 +20,8 @@ public class WorkflowExecutorContext {
     private final AlarmRepository alarmRepository;
     private final EventBlockingQueue eventQueue;
     private final List<Workflow> workflowList;
+    /**
+     * ingestion 相关的工作流存储在这里
+     */
+    private final Map<String, List<Workflow>> ingestionWorkflowMap;
 }

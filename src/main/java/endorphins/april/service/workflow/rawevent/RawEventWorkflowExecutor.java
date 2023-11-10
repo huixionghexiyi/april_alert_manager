@@ -7,6 +7,7 @@ import endorphins.april.service.workflow.TriggerType;
 import endorphins.april.service.workflow.WorkflowExecutorContext;
 import endorphins.april.service.workflow.event.WorkflowEvent;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -26,7 +27,8 @@ public class RawEventWorkflowExecutor implements Runnable {
 
     @Override
     public void run() {
-        for (Workflow workflow : context.getWorkflowList()) {
+        List<Workflow> workflows = context.getIngestionWorkflowMap().get(workflowRawEvent.getIngestionId());
+        for (Workflow workflow : workflows) {
             // 如果满足触发器的条件，则继续完成 workflow
             if (isMatch(workflow.getTrigger())) {
                 for (Action action : workflow.getSteps()) {

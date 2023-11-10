@@ -103,4 +103,16 @@ public class IngestionInstance {
 
         return instance;
     }
+
+    public boolean isBasicScale() {
+        return scaleType == null || scaleType == IngestionDataScaleType.BASIC;
+    }
+
+    public boolean isSingleConsumerScale() {
+        return scaleType == IngestionDataScaleType.SINGLE_CONSUMER;
+    }
+
+    public boolean isMultiConsumerScale() {
+        return scaleType == IngestionDataScaleType.MULTI_CONSUMER;
+    }
 }

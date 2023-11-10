@@ -61,7 +61,7 @@ public class RawEventQueueManager {
         queueMap.put(ingestionId, eventQueue);
     }
 
-    private RawEventBlockingQueue getBasicRawEventQueue() {
+    public RawEventBlockingQueue getBasicRawEventQueue() {
         if (basicRawEventQueue == null) {
             synchronized (basicLock) {
                 if (basicRawEventQueue == null) {

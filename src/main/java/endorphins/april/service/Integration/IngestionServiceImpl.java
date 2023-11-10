@@ -56,7 +56,11 @@ public class IngestionServiceImpl implements IngestionService {
         ingestionInstance.setId(status.getIngestionInstanceId());
         ingestionInstance.setStatus(status.getStatus());
         instanceRepository.save(ingestionInstance);
-        // TODO 停止 ingestion instance cosumer
+        if (rawEventQueueManager.getBasicIngestionIds().contains(status.getIngestionInstanceId())) {
+            return true;
+        }
+
+
         return true;
     }
 
@@ -70,7 +74,7 @@ public class IngestionServiceImpl implements IngestionService {
      */
     @Override
     public boolean custom(String apiKey, String ingestionId, Map<String, Object> rawEvent) {
-        WorkflowRawEvent workflowRawEvent = new WorkflowRawEvent(rawEvent);
+        WorkflowRawEvent workflowRawEvent = new WorkflowRawEvent(ingestionId, rawEvent);
         RawEventBlockingQueue queue = rawEventQueueManager.getQueueByIngestionId(ingestionId);
         queue.add(workflowRawEvent);
         return true;

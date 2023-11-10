@@ -17,7 +17,6 @@ import endorphins.april.service.workflow.event.ClassifyActionParams;
 import endorphins.april.service.workflow.event.DeduplicationActionParams;
 import endorphins.april.service.workflow.event.EventConsumer;
 import endorphins.april.service.workflow.event.EventQueueManager;
-import endorphins.april.service.workflow.rawevent.RawEventConsumer;
 import endorphins.april.service.workflow.rawevent.RawEventConsumerManager;
 import endorphins.april.service.workflow.rawevent.RawEventQueueManager;
 import lombok.AllArgsConstructor;
@@ -73,7 +72,7 @@ public class AtEventRunner implements ApplicationRunner {
          *  为每个用户增加一个默认的 workflow
          *  如果已经存在，则不做操作
          */
-        initWorkflowData();
+        initDefaultWorkflowData();
 
         /**
          * 初始化 event queue
@@ -96,7 +95,6 @@ public class AtEventRunner implements ApplicationRunner {
         List<Workflow> allWorkflow = workflowRepository.findByTriggerTypeOrderByPriorityAsc(TriggerType.EVENT_CREATED);
         if (CollectionUtils.isNotEmpty(allWorkflow)) {
             // 一个用户一个 workflow
-            // TODO 根据 priority 排序
             Map<Long, List<Workflow>> workflowByUserId = allWorkflow.stream()
                     .collect(Collectors.groupingBy(Workflow::getCreateUserId, LinkedHashMap::new, Collectors.toList()));
             workflowByUserId.forEach(
@@ -143,7 +141,7 @@ public class AtEventRunner implements ApplicationRunner {
         apiKeyRepository.save(entity);
     }
 
-    private void initWorkflowData() {
+    private void initDefaultWorkflowData() {
         // TODO 需要对所有用户增加 workflow，这里暂时只对默认用户增加
         Optional<Workflow> workflow = workflowRepository.findByTags(Workflow.DEFAULT_TAG);
         if (workflow.isPresent()) {
@@ -231,33 +229,4 @@ public class AtEventRunner implements ApplicationRunner {
                 }
         );
     }
-
-//    private void initRawEventConsumer() {
-//        List<Workflow> allWorkflow =
-//                workflowRepository.findByTriggerTypeOrderByPriorityAsc(TriggerType.RAW_EVENT_COLLECT);
-//        if (CollectionUtils.isNotEmpty(allWorkflow)) {
-//            // 一个用户一个 workflow
-//            Map<String, List<Workflow>> workflowByIngestionId = allWorkflow.stream()
-//                    .collect(Collectors.groupingBy(Workflow::getIngestionId, LinkedHashMap::new, Collectors.toList()));
-//            workflowByIngestionId.forEach(
-//                    (ingestionId, workflows) -> {
-//                        WorkflowExecutorContext executorContext = WorkflowExecutorContext.builder()
-//                                .workflowList(workflows)
-//                                .alarmRepository(alarmRepository)
-//                                .eventQueue(eventQueueManager.getQueueByUserId(workflows.get(0).getCreateUserId()))
-//                                .build();
-//                        RawEventConsumer consumer = RawEventConsumer.builder()
-//                                .rawEventQueue(rawEventQueueManager.getQueueByIngestionId(ingestionId))
-//                                .threadPoolManager(threadPoolManager)
-//                                .workflowExecutorContext(executorContext)
-//                                .build();
-//                        threadPoolManager.getRawEventConsumerThreadPool().execute(consumer);
-//                    }
-//            );
-//        } else {
-//            log.warn("not find any workflow");
-//        }
-//    }
-
-
 }
