@@ -4,7 +4,6 @@ import cn.endorphin.atevent.infrastructure.json.JsonUtils;
 import cn.endorphin.atevent.model.mapping.Conditional;
 import cn.endorphin.atevent.model.mapping.IngestionConfig;
 import cn.endorphin.atevent.model.mapping.MappingRule;
-import cn.endorphin.atevent.model.mapping.OperatorType;
 import cn.endorphin.atevent.workflow.Condition;
 import cn.endorphin.atevent.workflow.WorkflowExecutorContext;
 import cn.endorphin.atevent.workflow.rawevent.WorkflowRawEvent;
@@ -32,8 +31,13 @@ public class RawEventMappingActionExecutor implements ActionExecutor<WorkflowExe
     public static final String name = "rawEventMapping";
 
     @Override
-    public void execute(String paramsStr, WorkflowExecutorContext context, WorkflowRawEvent rawEvent) {
-        RawEventMappingActionParams params = JsonUtils.parse(paramsStr, RawEventMappingActionParams.class);
+    public void execute(Object paramsStr, WorkflowExecutorContext context, WorkflowRawEvent rawEvent) {
+        RawEventMappingActionParams params;
+        if (paramsStr instanceof RawEventMappingActionParams) {
+            params = (RawEventMappingActionParams) paramsStr;
+        } else {
+            params = JsonUtils.parse(paramsStr.toString(), RawEventMappingActionParams.class);
+        }
         IngestionConfig config = params.getIngestionConfig();
         for (MappingRule mappingRule : config.getMappings()) {
             switch (mappingRule.getType()) {

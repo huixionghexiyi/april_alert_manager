@@ -1,6 +1,7 @@
 package cn.endorphin.atevent.service.Integration;
 
 import cn.endorphin.atevent.entity.IngestionInstance;
+import cn.endorphin.atevent.infrastructure.exception.ApplicationException;
 import cn.endorphin.atevent.model.Event;
 import cn.endorphin.atevent.model.ingestion.IngestionInstanceStatus;
 import cn.endorphin.atevent.model.ingestion.IngestionInstanceVo;
@@ -78,6 +79,9 @@ public class IngestionServiceImpl implements IngestionService {
     public boolean custom(String apiKey, String ingestionId, Map<String, Object> rawEvent) {
         WorkflowRawEvent workflowRawEvent = new WorkflowRawEvent(ingestionId, rawEvent);
         RawEventBlockingQueue queue = rawEventQueueManager.getQueueByIngestionId(ingestionId);
+        if (queue == null) {
+            throw new ApplicationException("ingestionId ["+ingestionId+"] is invalid");
+        }
         queue.add(workflowRawEvent);
         return true;
     }

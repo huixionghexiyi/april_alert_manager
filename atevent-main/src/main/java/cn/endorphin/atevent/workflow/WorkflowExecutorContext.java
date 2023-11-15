@@ -3,11 +3,10 @@ package cn.endorphin.atevent.workflow;
 import java.util.List;
 import java.util.Map;
 
-import cn.endorphin.atevent.workflow.executor.WorkflowContext;
 import cn.endorphin.atevent.entity.Workflow;
-import cn.endorphin.atevent.init.ActionExecutorManager;
 import cn.endorphin.atevent.repository.AlarmRepository;
 import cn.endorphin.atevent.workflow.event.EventBlockingQueue;
+import cn.endorphin.atevent.workflow.executor.ActionExecutorManager;
 import lombok.Builder;
 import lombok.Data;
 
@@ -17,7 +16,7 @@ import lombok.Data;
  **/
 @Data
 @Builder
-public class WorkflowExecutorContext implements WorkflowContext {
+public class WorkflowExecutorContext {
     private final AlarmRepository alarmRepository;
     private final EventBlockingQueue eventQueue;
     private final List<Workflow> workflowList;

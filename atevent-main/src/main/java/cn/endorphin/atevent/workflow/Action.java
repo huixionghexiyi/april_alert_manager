@@ -14,12 +14,12 @@ public class Action {
 
     private String name;
 
-    private String params;
+    private Object params;
 
     @Transient
     private ActionExecutor executor;
 
-    public Action(String name, String params) {
+    public Action(String name, Object params) {
         this.name = name;
         this.params = params;
     }

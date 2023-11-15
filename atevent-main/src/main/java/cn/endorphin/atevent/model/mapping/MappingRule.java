@@ -1,9 +1,10 @@
 package cn.endorphin.atevent.model.mapping;
 
+import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.List;
 import java.util.Map;
-
-import lombok.Data;
 
 /**
  * @author timothy
@@ -24,7 +25,7 @@ public class MappingRule {
 
     /**
      * 映射来源
-     *
+     * <p>
      * 支持多个来源
      */
     private List<String> sourceKeys;
@@ -38,7 +39,7 @@ public class MappingRule {
     /**
      * 当前映射规则的 值的映射
      */
-    private Map<MappingConverterType, List<String>> converter;
+    private Map<String, String> converter;
 
     private String defaultValue;
 
@@ -48,13 +49,10 @@ public class MappingRule {
     private String delimiter;
 
     public Object convertValue(Object sourceValue) {
-        List<String> sourceValues = converter.get(MappingConverterType.sourceValues);
-        List<String> targetValues = converter.get(MappingConverterType.targetValues);
-        for (int i = 0; i < sourceValues.size(); i++) {
-            if (sourceValues.get(i).equals(sourceValue.toString())) {
-                return targetValues.get(i);
-            }
+        String ret = converter.get((String) sourceValue);
+        if (StringUtils.isEmpty(ret)) {
+            return defaultValue;
         }
-        return sourceValue;
+        return ret;
     }
 }

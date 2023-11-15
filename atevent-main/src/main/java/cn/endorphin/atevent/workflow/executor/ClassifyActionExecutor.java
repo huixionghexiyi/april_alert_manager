@@ -18,8 +18,8 @@ public class ClassifyActionExecutor implements ActionExecutor<WorkflowExecutorCo
     public static final String name = "classify";
 
     @Override
-    public void execute(String actionParams, WorkflowExecutorContext context, WorkflowEvent workflowData) {
-        ClassifyActionParams params = JsonUtils.parse(actionParams, ClassifyActionParams.class);
+    public void execute(Object actionParams, WorkflowExecutorContext context, WorkflowEvent workflowData) {
+        ClassifyActionParams params = JsonUtils.parse((String) actionParams, ClassifyActionParams.class);
         // 如果有 这两个字段，就不再 进行分类
         if (StringUtils.isNotBlank(workflowData.getKind()) || StringUtils.isNotBlank(workflowData.getType())) {
             return;

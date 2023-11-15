@@ -30,8 +30,8 @@ public class DeduplicationActionExecutor implements ActionExecutor<WorkflowExecu
     public static final String name = "deduplication";
 
     @Override
-    public void execute(String paramsStr, WorkflowExecutorContext context, WorkflowEvent workflowEvent) {
-        DeduplicationActionParams params = JsonUtils.parse(paramsStr, DeduplicationActionParams.class);
+    public void execute(Object paramsStr, WorkflowExecutorContext context, WorkflowEvent workflowEvent) {
+        DeduplicationActionParams params = JsonUtils.parse((String)paramsStr, DeduplicationActionParams.class);
         // 根据去重字段查询历史 alarm
         String dedupeKey = workflowEvent.getDeduplicationKey();
         if (StringUtils.isBlank(dedupeKey)) {

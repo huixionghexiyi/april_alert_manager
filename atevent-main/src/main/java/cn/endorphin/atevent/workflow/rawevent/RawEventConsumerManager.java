@@ -2,10 +2,9 @@ package cn.endorphin.atevent.workflow.rawevent;
 
 import cn.endorphin.atevent.entity.IngestionInstance;
 import cn.endorphin.atevent.entity.Workflow;
-import cn.endorphin.atevent.infrastructure.json.JsonUtils;
 import cn.endorphin.atevent.infrastructure.thread.ThreadPoolManager;
+import cn.endorphin.atevent.workflow.executor.ActionExecutorManager;
 import cn.endorphin.atevent.repository.AlarmRepository;
-import cn.endorphin.atevent.repository.WorkflowRepository;
 import cn.endorphin.atevent.utils.JoinerHelper;
 import cn.endorphin.atevent.workflow.*;
 import cn.endorphin.atevent.workflow.event.EventQueueManager;
@@ -36,9 +35,9 @@ public class RawEventConsumerManager {
     @Autowired
     private ThreadPoolManager threadPoolManager;
     @Autowired
-    private WorkflowRepository workflowRepository;
-    @Autowired
     private AlarmRepository alarmRepository;
+    @Autowired
+    private ActionExecutorManager actionExecutorManager;
 
     public static final String consumerNamePrefix = "raw-event-consumer-";
 
@@ -94,39 +93,36 @@ public class RawEventConsumerManager {
         ingestionWorkflowMap.put(instance.getId(), workflowLists);
         if (basicWorkflowConsumer == null) {
             synchronized (this) {
-                WorkflowExecutorContext executorContext = WorkflowExecutorContext.builder()
-                        .alarmRepository(alarmRepository)
-                        .ingestionWorkflowMap(ingestionWorkflowMap)
-                        // 处理完成的 rawEvent 需要放到 eventQueue 中
-                        .eventQueue(eventQueueManager.getQueueByUserId(instance.getCreateUserId()))
-                        .build();
-                basicWorkflowConsumer = getConsumer("basic", rawEventQueueManager.getBasicRawEventQueue(), executorContext);
+                basicWorkflowConsumer = getConsumer("basic", instance);
                 threadPoolManager.getRawEventConsumerThreadPool().execute(basicWorkflowConsumer);
                 consumerAuditMap.put("basic", basicWorkflowConsumer);
             }
         }
     }
 
-    private RawEventConsumer getConsumer(String name, RawEventBlockingQueue rawEventQueueManager, WorkflowExecutorContext executorContext) {
+    private RawEventConsumer getConsumer(String name, IngestionInstance instance) {
+        WorkflowExecutorContext executorContext = WorkflowExecutorContext.builder()
+                .alarmRepository(alarmRepository)
+                .actionExecutorManager(actionExecutorManager)
+                .ingestionWorkflowMap(ingestionWorkflowMap)
+                // 处理完成的 rawEvent 需要放到 eventQueue 中
+                .eventQueue(eventQueueManager.getQueueByUserId(instance.getCreateUserId()))
+                .build();
         return RawEventConsumer.builder()
                 .name(name)
                 .index(consumerCount.incrementAndGet())
-                .rawEventQueue(rawEventQueueManager)
+                .rawEventQueue(rawEventQueueManager.getQueueByIngestionId(instance.getId()))
                 .threadPoolManager(threadPoolManager)
                 .workflowExecutorContext(executorContext)
                 .build();
     }
 
     private void runSingleConsumer(IngestionInstance instance, List<Workflow> workflows) {
-        WorkflowExecutorContext executorContext = WorkflowExecutorContext.builder()
-                .alarmRepository(alarmRepository)
-                .workflowList(workflows)
-                // 处理完成的 rawEvent 需要放到 eventQueue 中，所以需要获取 当前 ingestion 对应的 eventQueue
-                .eventQueue(eventQueueManager.getQueueByUserId(instance.getCreateUserId()))
-                .build();
 
         String consumerName = getConsumerNameByIngestion(instance);
-        RawEventConsumer consumer = getConsumer(consumerName, rawEventQueueManager.getQueueByIngestionId(instance.getId()), executorContext);
+
+        RawEventConsumer consumer = getConsumer(consumerName, instance);
+
         threadPoolManager.getRawEventConsumerThreadPool().execute(consumer);
         consumerAuditMap.put(consumerName, consumer);
     }
@@ -151,7 +147,8 @@ public class RawEventConsumerManager {
                 .type(TriggerType.RAW_EVENT_COLLECT)
                 .build();
         List<Action> steps = Lists.newArrayList();
-        Action action = new Action(RawEventMappingActionExecutor.name, JsonUtils.toJSONString(instance.getConfig()));
+        RawEventMappingActionParams params = new RawEventMappingActionParams(instance.getConfig());
+        Action action = new Action(RawEventMappingActionExecutor.name, params);
         steps.add(action);
         return Workflow.builder()
                 .tags(Workflow.INGESTION_TAG)

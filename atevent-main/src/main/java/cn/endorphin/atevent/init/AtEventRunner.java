@@ -14,6 +14,7 @@ import cn.endorphin.atevent.repository.WorkflowRepository;
 import cn.endorphin.atevent.workflow.*;
 import cn.endorphin.atevent.workflow.event.EventConsumer;
 import cn.endorphin.atevent.workflow.event.EventQueueManager;
+import cn.endorphin.atevent.workflow.executor.ActionExecutorManager;
 import cn.endorphin.atevent.workflow.executor.ClassifyActionExecutor;
 import cn.endorphin.atevent.workflow.executor.ClassifyActionParams;
 import cn.endorphin.atevent.workflow.executor.DeduplicationActionParams;
@@ -62,6 +63,8 @@ public class AtEventRunner implements ApplicationRunner {
 
     private IngestionInstanceRepository ingestionInstanceRepository;
 
+    private ActionExecutorManager actionExecutorManager;
+
     @Override
     public void run(ApplicationArguments args) throws Exception {
         /**
@@ -86,12 +89,6 @@ public class AtEventRunner implements ApplicationRunner {
         initEventConsumer();
 
         initRawEventQueueAndConsumer();
-
-        initActionExecutor();
-    }
-
-    private void initActionExecutor() {
-
     }
 
 
@@ -107,6 +104,7 @@ public class AtEventRunner implements ApplicationRunner {
                         WorkflowExecutorContext executorContext = WorkflowExecutorContext.builder()
                                 .workflowList(workflows)
                                 .alarmRepository(alarmRepository)
+                                .actionExecutorManager(actionExecutorManager)
                                 .build();
                         EventConsumer eventConsumer = EventConsumer.builder()
                                 .eventQueue(eventQueueManager.getQueueByUserId(createUserId))

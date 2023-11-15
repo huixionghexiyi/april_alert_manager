@@ -1,10 +1,12 @@
 package cn.endorphin.atevent.workflow.executor;
 
 /**
+ * 定义了 action的执行接口
+ * 每一种 action 都需要有一个 executor
  * @author timothy
  * @DateTime: 2023/8/30 17:19
  **/
-public interface ActionExecutor<W extends WorkflowContext, D extends WorkflowData> {
+public interface ActionExecutor<C, D extends WorkflowData> {
 
-    void execute(String actionParams, W context, D workflowData);
+    void execute(Object actionParams, C context, D workflowData);
 }

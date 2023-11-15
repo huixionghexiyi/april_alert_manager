@@ -10,4 +10,8 @@ import lombok.Getter;
 @Getter
 public class RawEventMappingActionParams implements ActionParams {
     IngestionConfig ingestionConfig;
+
+    public RawEventMappingActionParams(IngestionConfig ingestionConfig) {
+        this.ingestionConfig = ingestionConfig;
+    }
 }

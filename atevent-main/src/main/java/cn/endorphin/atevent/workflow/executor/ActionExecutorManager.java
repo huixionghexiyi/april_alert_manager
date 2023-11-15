@@ -1,4 +1,4 @@
-package cn.endorphin.atevent.init;
+package cn.endorphin.atevent.workflow.executor;
 
 import cn.endorphin.atevent.workflow.executor.ActionExecutor;
 import org.springframework.beans.factory.annotation.Autowired;
