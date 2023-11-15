@@ -2,6 +2,7 @@ package cn.endorphin.atevent.model.mapping;
 
 import java.util.List;
 
+import cn.endorphin.atevent.workflow.Condition;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
@@ -49,39 +50,39 @@ public class Conditional {
      * @author timothy
      * @DateTime: 2023/9/27 19:28
      **/
-    @Data
-    public static class Condition {
-
-        private String sourceKey;
-
-        private OperatorType operator;
-
-        private String value;
-
-        public boolean checkValue(Object value) {
-            switch (operator) {
-                case EQUALS:
-                    return value.equals(this.value);
-                case NOT_EQUALS:
-                    return !value.equals(this.value);
-                case CONTAINS:
-                    return value.toString().contains(this.value);
-                case NOT_CONTAINS:
-                    return !value.toString().contains(this.value);
-                case BEGINS_WITH:
-                    return value.toString().startsWith(this.value);
-                case NOT_BEGIN_WITH:
-                    return !value.toString().startsWith(this.value);
-                case ENDS_WITH:
-                    return value.toString().endsWith(this.value);
-                case NOT_END_WITH:
-                    return !value.toString().endsWith(this.value);
-                case EXIST:
-                    return value != null;
-                default:
-                    throw new UnsupportedOperationException("Not Support operator[" + operator + "]");
-            }
-        }
-
-    }
+//    @Data
+//    public static class Condition {
+//
+//        private String sourceKey;
+//
+//        private OperatorType operator;
+//
+//        private String value;
+//
+//        public boolean checkValue(Object value) {
+//            switch (operator) {
+//                case EQUALS:
+//                    return value.equals(this.value);
+//                case NOT_EQUALS:
+//                    return !value.equals(this.value);
+//                case CONTAINS:
+//                    return value.toString().contains(this.value);
+//                case NOT_CONTAINS:
+//                    return !value.toString().contains(this.value);
+//                case BEGINS_WITH:
+//                    return value.toString().startsWith(this.value);
+//                case NOT_BEGIN_WITH:
+//                    return !value.toString().startsWith(this.value);
+//                case ENDS_WITH:
+//                    return value.toString().endsWith(this.value);
+//                case NOT_END_WITH:
+//                    return !value.toString().endsWith(this.value);
+//                case EXIST:
+//                    return value != null;
+//                default:
+//                    throw new UnsupportedOperationException("Not Support operator[" + operator + "]");
+//            }
+//        }
+//
+//    }
 }

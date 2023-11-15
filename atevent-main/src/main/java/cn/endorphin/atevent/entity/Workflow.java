@@ -4,9 +4,9 @@ import java.io.Serializable;
 import java.util.List;
 
 import cn.endorphin.atevent.service.valueconverter.ActionPropertyValueConverter;
-import cn.endorphin.atevent.service.workflow.Trigger;
-import cn.endorphin.atevent.service.workflow.WorkflowStatus;
-import cn.endorphin.atevent.service.workflow.WorkflowType;
+import cn.endorphin.atevent.workflow.Trigger;
+import cn.endorphin.atevent.workflow.WorkflowStatus;
+import cn.endorphin.atevent.workflow.WorkflowType;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Dynamic;
@@ -15,7 +15,7 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 import org.springframework.data.elasticsearch.annotations.ValueConverter;
 import org.springframework.data.elasticsearch.annotations.WriteTypeHint;
 
-import cn.endorphin.atevent.service.workflow.Action;
+import cn.endorphin.atevent.workflow.Action;
 import lombok.Builder;
 import lombok.Data;
 

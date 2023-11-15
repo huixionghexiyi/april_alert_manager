@@ -2,7 +2,7 @@ package cn.endorphin.atevent.service.valueconverter;
 
 import java.util.Map;
 
-import cn.endorphin.atevent.service.workflow.Action;
+import cn.endorphin.atevent.workflow.Action;
 import org.springframework.data.elasticsearch.core.mapping.PropertyValueConverter;
 
 /**

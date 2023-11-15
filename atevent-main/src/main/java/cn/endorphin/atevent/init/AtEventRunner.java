@@ -1,25 +1,25 @@
 package cn.endorphin.atevent.init;
 
-import cn.endorphin.atevent.service.workflow.*;
 import cn.endorphin.atevent.config.AtEventConfig;
 import cn.endorphin.atevent.entity.ApiKey;
 import cn.endorphin.atevent.entity.IngestionInstance;
 import cn.endorphin.atevent.entity.Workflow;
-import cn.endorphin.atevent.repository.IngestionInstanceRepository;
-import cn.endorphin.atevent.repository.WorkflowRepository;
-import cn.endorphin.atevent.service.workflow.*;
-import cn.endorphin.atevent.service.workflow.event.ClassifyActionParams;
-import cn.endorphin.atevent.service.workflow.event.DeduplicationActionParams;
-import cn.endorphin.atevent.service.workflow.event.EventQueueManager;
-import cn.endorphin.atevent.service.workflow.rawevent.RawEventConsumerManager;
-import cn.endorphin.atevent.service.workflow.rawevent.RawEventQueueManager;
-import com.google.common.collect.Lists;
 import cn.endorphin.atevent.infrastructure.json.JsonUtils;
 import cn.endorphin.atevent.infrastructure.thread.ThreadPoolManager;
 import cn.endorphin.atevent.model.ingestion.IngestionInstanceStatus;
 import cn.endorphin.atevent.repository.AlarmRepository;
 import cn.endorphin.atevent.repository.ApiKeyRepository;
-import cn.endorphin.atevent.service.workflow.event.EventConsumer;
+import cn.endorphin.atevent.repository.IngestionInstanceRepository;
+import cn.endorphin.atevent.repository.WorkflowRepository;
+import cn.endorphin.atevent.workflow.*;
+import cn.endorphin.atevent.workflow.event.EventConsumer;
+import cn.endorphin.atevent.workflow.event.EventQueueManager;
+import cn.endorphin.atevent.workflow.executor.ClassifyActionExecutor;
+import cn.endorphin.atevent.workflow.executor.ClassifyActionParams;
+import cn.endorphin.atevent.workflow.executor.DeduplicationActionParams;
+import cn.endorphin.atevent.workflow.rawevent.RawEventConsumerManager;
+import cn.endorphin.atevent.workflow.rawevent.RawEventQueueManager;
+import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -87,7 +87,11 @@ public class AtEventRunner implements ApplicationRunner {
 
         initRawEventQueueAndConsumer();
 
-//        initRawEventConsumer();
+        initActionExecutor();
+    }
+
+    private void initActionExecutor() {
+
     }
 
 
@@ -189,7 +193,7 @@ public class AtEventRunner implements ApplicationRunner {
         // 分类 action
         ClassifyActionParams classifyActionContext = new ClassifyActionParams();
         classifyActionContext.setClassifyFields(atEventConfig.getDefaultClassifyFields());
-        Action a = new Action(classifyActionContext.getName(), JsonUtils.toJSONString(classifyActionContext));
+        Action a = new Action(ClassifyActionExecutor.name, JsonUtils.toJSONString(classifyActionContext));
         steps.add(a);
 
         return steps;
@@ -207,16 +211,16 @@ public class AtEventRunner implements ApplicationRunner {
     }
 
     public Trigger getDefaultEventTrigger() {
-        List<Term> terms = Lists.newArrayList();
+        List<Condition> conditions = Lists.newArrayList();
 
         return Trigger.builder()
                 .type(TriggerType.EVENT_CREATED)
-                .terms(terms).build();
+                .conditions(conditions).build();
     }
 
     private void initRawEventQueueAndConsumer() {
         List<IngestionInstance> all = ingestionInstanceRepository.findByStatus(IngestionInstanceStatus.Running);
-        if(CollectionUtils.isEmpty(all)) {
+        if (CollectionUtils.isEmpty(all)) {
             return;
         }
         all.forEach(
@@ -226,7 +230,7 @@ public class AtEventRunner implements ApplicationRunner {
 
                     Workflow workflow = rawEventConsumerManager.createWorkflowByIngestion(instance);
 
-                    rawEventConsumerManager.runConsumer(instance,Lists.newArrayList(workflow));
+                    rawEventConsumerManager.runConsumer(instance, Lists.newArrayList(workflow));
                 }
         );
     }

@@ -3,7 +3,7 @@ package cn.endorphin.atevent.repository;
 import java.util.List;
 
 import cn.endorphin.atevent.entity.Workflow;
-import cn.endorphin.atevent.service.workflow.TriggerType;
+import cn.endorphin.atevent.workflow.TriggerType;
 
 /**
  * @author timothy

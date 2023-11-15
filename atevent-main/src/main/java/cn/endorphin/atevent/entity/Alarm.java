@@ -6,7 +6,7 @@ import java.util.Map;
 
 import cn.endorphin.atevent.model.alarm.AlarmStatus;
 import cn.endorphin.atevent.service.valueconverter.SeverityValueConverter;
-import cn.endorphin.atevent.service.workflow.event.WorkflowEvent;
+import cn.endorphin.atevent.workflow.event.WorkflowEvent;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;

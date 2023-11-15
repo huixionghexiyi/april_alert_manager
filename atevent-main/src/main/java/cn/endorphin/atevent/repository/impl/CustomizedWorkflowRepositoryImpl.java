@@ -4,7 +4,7 @@ import java.util.List;
 
 import cn.endorphin.atevent.entity.Workflow;
 import cn.endorphin.atevent.repository.CustomizedWorkflowRepository;
-import cn.endorphin.atevent.service.workflow.TriggerType;
+import cn.endorphin.atevent.workflow.TriggerType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.elasticsearch.client.elc.NativeQuery;
