@@ -33,7 +33,7 @@ public class CustomizedWorkflowRepositoryImpl implements CustomizedWorkflowRepos
             .withQuery(q -> q.term(TermQuery.of(a -> a.field("trigger.type")
                 .value(triggerType.name()))))
             .withSort(Sort.by("priority").ascending())
-            .build();
+            .build();// TODO 这里需要查询所有
         SearchHits<Workflow> workflowSearchHits = operations.search(query, Workflow.class);
         if (workflowSearchHits.hasSearchHits()) {
             workflowSearchHits.getSearchHits().forEach(

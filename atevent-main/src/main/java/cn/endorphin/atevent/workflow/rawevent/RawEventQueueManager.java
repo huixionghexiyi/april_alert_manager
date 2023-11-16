@@ -40,6 +40,13 @@ public class RawEventQueueManager {
         return queueMap.get(ingestionId);
     }
 
+    public boolean removeQueueByIngestionId(String ingestionId) {
+        if (basicIngestionIds.contains(ingestionId)) {
+            basicIngestionIds.remove(ingestionId);
+        }
+        return true;
+    }
+
     public void addRawEventQueue(IngestionInstance instance, Long userId, Long tenantId) {
         if (instance == null) {
             log.debug("the ingestion instance is null,userId:{},tenantId:{}", userId, tenantId);

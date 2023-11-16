@@ -16,13 +16,15 @@ import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 import org.springframework.data.elasticsearch.annotations.ValueConverter;
 
+import java.io.Serializable;
+
 /**
  * @author timothy
  * @DateTime: 2023/9/4 19:58
  **/
 @Data
 @Document(indexName = "ingestion_instance")
-public class IngestionInstance {
+public class IngestionInstance implements Serializable {
     @Id
     private String id;
 

@@ -5,6 +5,7 @@ import cn.endorphin.atevent.infrastructure.exception.ApplicationException;
 import cn.endorphin.atevent.model.Event;
 import cn.endorphin.atevent.model.ingestion.IngestionInstanceStatus;
 import cn.endorphin.atevent.model.ingestion.IngestionInstanceVo;
+import cn.endorphin.atevent.model.ingestion.IngestionQueryParam;
 import cn.endorphin.atevent.model.ingestion.PostStatus;
 import cn.endorphin.atevent.repository.IngestionInstanceRepository;
 import cn.endorphin.atevent.workflow.event.EventBlockingQueue;
@@ -15,10 +16,13 @@ import cn.endorphin.atevent.workflow.rawevent.RawEventConsumerManager;
 import cn.endorphin.atevent.workflow.rawevent.RawEventQueueManager;
 import cn.endorphin.atevent.workflow.rawevent.WorkflowRawEvent;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author timothy
@@ -40,6 +44,12 @@ public class IngestionServiceImpl implements IngestionService {
     private RawEventQueueManager rawEventQueueManager;
 
     @Override
+    public Page<IngestionInstance> list(IngestionQueryParam param, Integer page, Integer size) {
+
+        return instanceRepository.page(param, page, size);
+    }
+
+    @Override
     public boolean events(String apiKey, List<Event> events) {
         // TODO 对 events 的合法性进行校验 description,severity,source,check not be null
         EventBlockingQueue eventBlockingQueue = eventQueueManager.getQueueByApiKey(apiKey);
@@ -54,14 +64,18 @@ public class IngestionServiceImpl implements IngestionService {
 
     @Override
     public boolean status(PostStatus status) {
-        IngestionInstance ingestionInstance = new IngestionInstance();
-        ingestionInstance.setId(status.getIngestionInstanceId());
-        ingestionInstance.setStatus(status.getStatus());
-        instanceRepository.save(ingestionInstance);
-        if (status.getStatus() == IngestionInstanceStatus.Stopped) {
-            rawEventConsumerManager.stopConsumer(ingestionInstance);
+        Optional<IngestionInstance> ingestionInstanceOpt = instanceRepository.findById(status.getIngestionInstanceId());
+        if (ingestionInstanceOpt.isPresent()) {
+            IngestionInstance ingestionInstance = ingestionInstanceOpt.get();
+            ingestionInstance.setStatus(status.getStatus());
+            instanceRepository.save(ingestionInstance);
+            if (status.getStatus() == IngestionInstanceStatus.STOPPED) {
+                rawEventConsumerManager.stopConsumer(ingestionInstance);
+            } else {
+                rawEventConsumerManager.startConsumer(ingestionInstance);
+            }
         } else {
-            rawEventConsumerManager.startConsumer(ingestionInstance);
+            throw new ApplicationException("the ingestion instance is not found");
         }
 
         return true;
@@ -80,7 +94,7 @@ public class IngestionServiceImpl implements IngestionService {
         WorkflowRawEvent workflowRawEvent = new WorkflowRawEvent(ingestionId, rawEvent);
         RawEventBlockingQueue queue = rawEventQueueManager.getQueueByIngestionId(ingestionId);
         if (queue == null) {
-            throw new ApplicationException("ingestionId ["+ingestionId+"] is invalid");
+            throw new ApplicationException("ingestion [" + ingestionId + "] is invalid, please check it was stopped or removed");
         }
         queue.add(workflowRawEvent);
         return true;
@@ -93,4 +107,5 @@ public class IngestionServiceImpl implements IngestionService {
         rawEventConsumerManager.startConsumer(instance);
         return instance.getId();
     }
+
 }

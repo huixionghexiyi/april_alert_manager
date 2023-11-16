@@ -10,4 +10,4 @@ server:
 
 logging:
   level:
-    tracer: DEBUG
+    tracer: TRACE

@@ -1,6 +1,7 @@
-package cn.endorphin.atevent.infrastructure.web;
+package cn.endorphin.atevent.infrastructure.exception;
 
 import cn.endorphin.atevent.infrastructure.exception.ApplicationException;
+import cn.endorphin.atevent.infrastructure.web.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;

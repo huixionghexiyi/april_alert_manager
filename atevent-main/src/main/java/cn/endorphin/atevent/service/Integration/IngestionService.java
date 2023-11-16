@@ -3,9 +3,15 @@ package cn.endorphin.atevent.service.Integration;
 import java.util.List;
 import java.util.Map;
 
+import cn.endorphin.atevent.entity.IngestionInstance;
 import cn.endorphin.atevent.model.Event;
+import cn.endorphin.atevent.model.ingestion.IngestionInstanceStatus;
 import cn.endorphin.atevent.model.ingestion.IngestionInstanceVo;
+import cn.endorphin.atevent.model.ingestion.IngestionQueryParam;
 import cn.endorphin.atevent.model.ingestion.PostStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.elasticsearch.core.SearchHit;
+import org.springframework.data.elasticsearch.core.SearchPage;
 
 /**
  * @author timothy
@@ -43,4 +49,6 @@ public interface IngestionService {
      * @return
      */
     String create(IngestionInstanceVo ingestionInstanceVo);
+
+    Page<IngestionInstance> list(IngestionQueryParam param, Integer page, Integer size);
 }

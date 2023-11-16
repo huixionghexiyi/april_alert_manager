@@ -217,7 +217,7 @@ public class AtEventRunner implements ApplicationRunner {
     }
 
     private void initRawEventQueueAndConsumer() {
-        List<IngestionInstance> all = ingestionInstanceRepository.findByStatus(IngestionInstanceStatus.Running);
+        List<IngestionInstance> all = ingestionInstanceRepository.findByStatus(IngestionInstanceStatus.RUNNING);
         if (CollectionUtils.isEmpty(all)) {
             return;
         }

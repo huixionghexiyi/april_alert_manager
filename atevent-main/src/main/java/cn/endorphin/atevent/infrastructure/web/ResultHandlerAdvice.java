@@ -15,7 +15,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
  * @DateTime: 2023/4/25 00:06
  **/
 @Slf4j
-@RestControllerAdvice(basePackages = {"endorphins.april.controller"})
+@RestControllerAdvice(basePackages = {"cn.endorphin.atevent.controller"})
 public class ResultHandlerAdvice implements ResponseBodyAdvice<Object> {
     @Override
     public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
