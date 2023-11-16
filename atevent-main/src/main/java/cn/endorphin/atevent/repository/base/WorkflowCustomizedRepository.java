@@ -1,4 +1,4 @@
-package cn.endorphin.atevent.repository;
+package cn.endorphin.atevent.repository.base;
 
 import java.util.Optional;
 
@@ -10,9 +10,9 @@ import org.springframework.data.repository.PagingAndSortingRepository;
  * @author timothy
  * @DateTime: 2023/8/31 15:31
  **/
-public interface WorkflowRepository
+public interface WorkflowCustomizedRepository
     extends CrudRepository<Workflow, String>, PagingAndSortingRepository<Workflow, String>,
-    CustomizedWorkflowRepository {
+        cn.endorphin.atevent.repository.WorkflowCustomizedRepository {
 
     Optional<Workflow> findByTags(String tags);
 }

@@ -16,6 +16,8 @@ import java.io.Serializable;
 @Data
 public class IngestionQueryParam implements Serializable {
 
+    private String ingestionInstanceId;
+
     private String name;
 
     private IngestionInstanceStatus status;

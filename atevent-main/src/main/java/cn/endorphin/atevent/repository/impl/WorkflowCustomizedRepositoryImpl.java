@@ -3,7 +3,7 @@ package cn.endorphin.atevent.repository.impl;
 import java.util.List;
 
 import cn.endorphin.atevent.entity.Workflow;
-import cn.endorphin.atevent.repository.CustomizedWorkflowRepository;
+import cn.endorphin.atevent.repository.WorkflowCustomizedRepository;
 import cn.endorphin.atevent.workflow.TriggerType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -21,7 +21,7 @@ import com.google.common.collect.Lists;
  * @DateTime: 2023/8/31 17:29
  **/
 @Service
-public class CustomizedWorkflowRepositoryImpl implements CustomizedWorkflowRepository {
+public class WorkflowCustomizedRepositoryImpl implements WorkflowCustomizedRepository {
 
     @Autowired
     private ElasticsearchOperations operations;

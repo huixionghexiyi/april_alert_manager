@@ -7,10 +7,10 @@ import cn.endorphin.atevent.entity.Workflow;
 import cn.endorphin.atevent.infrastructure.json.JsonUtils;
 import cn.endorphin.atevent.infrastructure.thread.ThreadPoolManager;
 import cn.endorphin.atevent.model.ingestion.IngestionInstanceStatus;
-import cn.endorphin.atevent.repository.AlarmRepository;
-import cn.endorphin.atevent.repository.ApiKeyRepository;
-import cn.endorphin.atevent.repository.IngestionInstanceRepository;
-import cn.endorphin.atevent.repository.WorkflowRepository;
+import cn.endorphin.atevent.repository.base.AlarmCustomizedRepository;
+import cn.endorphin.atevent.repository.base.ApiKeyRepository;
+import cn.endorphin.atevent.repository.base.IngestionInstanceCustomizedRepository;
+import cn.endorphin.atevent.repository.base.WorkflowCustomizedRepository;
 import cn.endorphin.atevent.workflow.*;
 import cn.endorphin.atevent.workflow.event.EventConsumer;
 import cn.endorphin.atevent.workflow.event.EventQueueManager;
@@ -47,13 +47,13 @@ public class AtEventRunner implements ApplicationRunner {
 
     private AtEventConfig atEventConfig;
 
-    private WorkflowRepository workflowRepository;
+    private WorkflowCustomizedRepository workflowRepository;
 
     private ApiKeyRepository apiKeyRepository;
 
     private EventQueueManager eventQueueManager;
 
-    private AlarmRepository alarmRepository;
+    private AlarmCustomizedRepository alarmRepository;
 
     private ThreadPoolManager threadPoolManager;
 
@@ -61,7 +61,7 @@ public class AtEventRunner implements ApplicationRunner {
 
     private RawEventConsumerManager rawEventConsumerManager;
 
-    private IngestionInstanceRepository ingestionInstanceRepository;
+    private IngestionInstanceCustomizedRepository ingestionInstanceRepository;
 
     private ActionExecutorManager actionExecutorManager;
 

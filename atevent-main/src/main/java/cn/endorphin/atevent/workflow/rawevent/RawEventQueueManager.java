@@ -52,7 +52,7 @@ public class RawEventQueueManager {
             log.debug("the ingestion instance is null,userId:{},tenantId:{}", userId, tenantId);
             return;
         }
-        if (instance.getScaleType() == null || instance.getScaleType() == IngestionDataScaleType.BASIC) {
+        if (instance.isBasicScale()) {
             basicIngestionIds.add(instance.getId());
             getBasicRawEventQueue();
             return;

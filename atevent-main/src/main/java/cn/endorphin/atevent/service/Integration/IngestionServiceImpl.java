@@ -7,7 +7,7 @@ import cn.endorphin.atevent.model.ingestion.IngestionInstanceStatus;
 import cn.endorphin.atevent.model.ingestion.IngestionInstanceVo;
 import cn.endorphin.atevent.model.ingestion.IngestionQueryParam;
 import cn.endorphin.atevent.model.ingestion.PostStatus;
-import cn.endorphin.atevent.repository.IngestionInstanceRepository;
+import cn.endorphin.atevent.repository.base.IngestionInstanceCustomizedRepository;
 import cn.endorphin.atevent.workflow.event.EventBlockingQueue;
 import cn.endorphin.atevent.workflow.event.EventQueueManager;
 import cn.endorphin.atevent.workflow.event.WorkflowEvent;
@@ -17,7 +17,6 @@ import cn.endorphin.atevent.workflow.rawevent.RawEventQueueManager;
 import cn.endorphin.atevent.workflow.rawevent.WorkflowRawEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -35,7 +34,7 @@ public class IngestionServiceImpl implements IngestionService {
     private EventQueueManager eventQueueManager;
 
     @Autowired
-    private IngestionInstanceRepository instanceRepository;
+    private IngestionInstanceCustomizedRepository instanceRepository;
 
     @Autowired
     private RawEventConsumerManager rawEventConsumerManager;
@@ -68,7 +67,7 @@ public class IngestionServiceImpl implements IngestionService {
         if (ingestionInstanceOpt.isPresent()) {
             IngestionInstance ingestionInstance = ingestionInstanceOpt.get();
             ingestionInstance.setStatus(status.getStatus());
-            instanceRepository.save(ingestionInstance);
+            instanceRepository.update(ingestionInstance);
             if (status.getStatus() == IngestionInstanceStatus.STOPPED) {
                 rawEventConsumerManager.stopConsumer(ingestionInstance);
             } else {

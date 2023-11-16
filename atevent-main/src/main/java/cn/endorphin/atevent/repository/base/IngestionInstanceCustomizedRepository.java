@@ -1,4 +1,4 @@
-package cn.endorphin.atevent.repository;
+package cn.endorphin.atevent.repository.base;
 
 import cn.endorphin.atevent.entity.ApiKey;
 import cn.endorphin.atevent.entity.IngestionInstance;
@@ -12,8 +12,8 @@ import java.util.List;
  * @author timothy
  * @DateTime: 2023/8/31 15:31
  **/
-public interface IngestionInstanceRepository
-        extends CrudRepository<IngestionInstance, String>, PagingAndSortingRepository<IngestionInstance, String>, CustomizedIngestionInstanceRepository {
+public interface IngestionInstanceCustomizedRepository
+        extends CrudRepository<IngestionInstance, String>, PagingAndSortingRepository<IngestionInstance, String>, cn.endorphin.atevent.repository.IngestionInstanceCustomizedRepository {
 
     List<ApiKey> findByName(String defaultEventKey);
 

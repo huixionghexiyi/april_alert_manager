@@ -9,7 +9,7 @@ import cn.endorphin.atevent.workflow.TriggerType;
  * @author timothy
  * @DateTime: 2023/8/31 15:31
  **/
-public interface CustomizedWorkflowRepository {
+public interface WorkflowCustomizedRepository {
     /**
      * 根据 触发类型查询 workflow
      * @param triggerType

@@ -3,7 +3,7 @@ package cn.endorphin.atevent.workflow.rawevent;
 import cn.endorphin.atevent.entity.IngestionInstance;
 import cn.endorphin.atevent.entity.Workflow;
 import cn.endorphin.atevent.infrastructure.thread.ThreadPoolManager;
-import cn.endorphin.atevent.repository.AlarmRepository;
+import cn.endorphin.atevent.repository.base.AlarmCustomizedRepository;
 import cn.endorphin.atevent.utils.JoinerHelper;
 import cn.endorphin.atevent.workflow.*;
 import cn.endorphin.atevent.workflow.event.EventQueueManager;
@@ -35,7 +35,7 @@ public class RawEventConsumerManager {
     @Autowired
     private ThreadPoolManager threadPoolManager;
     @Autowired
-    private AlarmRepository alarmRepository;
+    private AlarmCustomizedRepository alarmRepository;
     @Autowired
     private ActionExecutorManager actionExecutorManager;
 
@@ -63,7 +63,7 @@ public class RawEventConsumerManager {
     public void stopConsumer(IngestionInstance ingestionInstance) {
         if (ingestionInstance.isBasicScale()) {
             rawEventQueueManager.removeQueueByIngestionId(ingestionInstance.getId());
-        } else if (ingestionInstance.isSingleConsumerScale()) {// TODO 这里没法获取 scaleType 字段
+        } else if (ingestionInstance.isSingleConsumerScale()) {
             String consumerNameByIngestion = getConsumerNameByIngestion(ingestionInstance);
             if (consumerAuditMap.containsKey(consumerNameByIngestion)) {
                 RawEventConsumer rawEventConsumer = consumerAuditMap.get(consumerNameByIngestion);

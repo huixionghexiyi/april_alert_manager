@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import cn.endorphin.atevent.entity.Workflow;
-import cn.endorphin.atevent.repository.AlarmRepository;
+import cn.endorphin.atevent.repository.base.AlarmCustomizedRepository;
 import cn.endorphin.atevent.workflow.event.EventBlockingQueue;
 import cn.endorphin.atevent.workflow.executor.ActionExecutorManager;
 import lombok.Builder;
@@ -17,7 +17,7 @@ import lombok.Data;
 @Data
 @Builder
 public class WorkflowExecutorContext {
-    private final AlarmRepository alarmRepository;
+    private final AlarmCustomizedRepository alarmRepository;
     private final EventBlockingQueue eventQueue;
     private final List<Workflow> workflowList;
     /**

@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import cn.endorphin.atevent.entity.ApiKey;
-import cn.endorphin.atevent.repository.ApiKeyRepository;
+import cn.endorphin.atevent.repository.base.ApiKeyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

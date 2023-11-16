@@ -33,6 +33,7 @@ public class IngestionController {
 
     @GetMapping("/list")
     public Page<IngestionInstance> list(@RequestParam(required = false) String name,
+                                        @RequestParam(required = false) String ingestionInstanceId,
                                         @RequestParam(required = false) String description,
                                         @RequestParam(required = false) IngestionSourceType sourceType,
                                         @RequestParam(required = false) IngestionInstanceStatus status,
@@ -42,6 +43,7 @@ public class IngestionController {
                                         @RequestParam(required = false) Integer size) {
         IngestionQueryParam params = IngestionQueryParam
                 .builder()
+                .ingestionInstanceId(ingestionInstanceId)
                 .name(name)
                 .description(description)
                 .sourceType(sourceType)

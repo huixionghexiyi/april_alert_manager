@@ -1,4 +1,4 @@
-package cn.endorphin.atevent.repository;
+package cn.endorphin.atevent.repository.base;
 
 import java.util.Optional;
 
@@ -11,8 +11,8 @@ import cn.endorphin.atevent.entity.Alarm;
  * @author timothy
  * @DateTime: 2023/8/31 15:31
  **/
-public interface AlarmRepository
-    extends CrudRepository<Alarm, String>, PagingAndSortingRepository<Alarm, String>, CustomizedAlarmRepository {
+public interface AlarmCustomizedRepository
+    extends CrudRepository<Alarm, String>, PagingAndSortingRepository<Alarm, String>, cn.endorphin.atevent.repository.AlarmCustomizedRepository {
 
     Optional<Alarm> findByDedupeKey(String dedupeKey);
 }

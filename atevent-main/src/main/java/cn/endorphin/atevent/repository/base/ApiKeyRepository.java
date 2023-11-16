@@ -1,4 +1,4 @@
-package cn.endorphin.atevent.repository;
+package cn.endorphin.atevent.repository.base;
 
 import java.util.List;
 

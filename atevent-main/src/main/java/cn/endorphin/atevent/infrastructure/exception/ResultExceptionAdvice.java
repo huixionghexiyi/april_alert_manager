@@ -1,6 +1,5 @@
 package cn.endorphin.atevent.infrastructure.exception;
 
-import cn.endorphin.atevent.infrastructure.exception.ApplicationException;
 import cn.endorphin.atevent.infrastructure.web.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -17,6 +16,12 @@ public class ResultExceptionAdvice {
     public Result handleException(Exception e) {
         log.error("服务异常:", e);
         return Result.systemFail("服务异常");
+    }
+
+    @ExceptionHandler(value = {IllegalArgumentException.class})
+    public Result handleIllegalArgumentException(IllegalArgumentException e) {
+        log.error("参数异常:", e);
+        return Result.applicationFail("参数异常");
     }
 
     @ExceptionHandler(value = {ApplicationException.class})

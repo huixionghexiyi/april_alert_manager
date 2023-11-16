@@ -1,8 +1,8 @@
 package cn.endorphin.atevent.workflow.event;
 
 import cn.endorphin.atevent.infrastructure.thread.ThreadPoolManager;
-import cn.endorphin.atevent.repository.AlarmRepository;
-import cn.endorphin.atevent.repository.WorkflowRepository;
+import cn.endorphin.atevent.repository.base.AlarmCustomizedRepository;
+import cn.endorphin.atevent.repository.base.WorkflowCustomizedRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
@@ -23,9 +23,9 @@ public class EventConsumerManager implements ApplicationRunner {
 
     private ThreadPoolManager threadPoolManager;
 
-    private WorkflowRepository workflowRepository;
+    private WorkflowCustomizedRepository workflowRepository;
 
-    private AlarmRepository alarmRepository;
+    private AlarmCustomizedRepository alarmRepository;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
